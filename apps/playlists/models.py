@@ -7,7 +7,6 @@ class Playlist(models.Model):
     cover_url   = models.URLField(blank=True)
     is_public   = models.BooleanField(default=False)
     
-    # Referencia al modelo de usuario definido en settings
     user        = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
@@ -17,7 +16,6 @@ class Playlist(models.Model):
     created_at  = models.DateTimeField(auto_now_add=True)
     updated_at  = models.DateTimeField(auto_now=True)
     
-    # Referencia cruzada a la app 'music'
     songs       = models.ManyToManyField(
         'music.Song', 
         through='PlaylistSong', 
@@ -25,6 +23,14 @@ class Playlist(models.Model):
         related_name='playlists'
     )
 
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', 'is_public']),   
+            models.Index(fields=['user', 'updated_at']),  
+            models.Index(fields=['name']),                
+        ]
+    
     def __str__(self):
         return self.name
 
@@ -36,9 +42,10 @@ class PlaylistSong(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['position']
-        # Clave compuesta para evitar duplicados exactos
-        unique_together = [['playlist', 'song']]
+        unique_together = [['playlist', 'song']]  #(crea índice implícito)
+        indexes = [
+            models.Index(fields=['playlist', 'position']), 
+        ]
 
     def __str__(self):
         return f"{self.playlist.name} - {self.song.id} (Pos: {self.position})"

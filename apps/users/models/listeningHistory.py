@@ -19,10 +19,11 @@ class ListeningHistory(models.Model):
     class Meta:
         ordering = ['-played_at']
         indexes = [
-            models.Index(fields=['user']),
-            models.Index(fields=['song']),
-            models.Index(fields=['played_at']),
+            models.Index(fields=['user']),              
+            models.Index(fields=['song']),              
+            models.Index(fields=['played_at']),         
             models.Index(fields=['user', 'played_at']),
+            models.Index(fields=['song', 'user']),      
         ]
         
     def __str__(self):

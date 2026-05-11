@@ -1,7 +1,7 @@
 from django.db import models
 
 class Artist(models.Model):
-    spotify_id = models.CharField(max_length=100, unique=True)
+    deezer_id = models.CharField(max_length=100, unique=True)
     
     name = models.CharField(max_length=200)
     image_url = models.URLField(blank=True)
@@ -16,9 +16,11 @@ class Artist(models.Model):
         verbose_name = "Artista"
         verbose_name_plural = "Artistas"
         indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['popularity']),
-    ]
+            models.Index(fields=['name']),            
+            models.Index(fields=['popularity']),       
+            models.Index(fields=['followers']),         
+            models.Index(fields=['name', 'popularity']), 
+        ]
 
     def __str__(self):
         return self.name

@@ -1,13 +1,16 @@
 [project]
 name = "grupo-4-base-de-datos-avanzado"
 version = "0.1.0"
-description = "Add your description here"
+description = "Plataforma de música con Django y MySQL"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "cryptography>=48.0.0",
-    "django>=5.2",
+    "django==6.0.5",
+    "djangorestframework==3.17.1",
     "pymysql>=1.1.3",
+    "python-decouple>=3.8",
     "python-dotenv>=1.2.2",
     "requests>=2.33.1",
+    "spotipy>=2.26.0",
 ]
