@@ -5,4 +5,4 @@
 ### Integrantes:
 * **Celeste Choquevillca**
 * **Gabriela Chang Yang**
-* **Bujualdon Victoria**
+* **Sanchez Bujaldon Victoria**
