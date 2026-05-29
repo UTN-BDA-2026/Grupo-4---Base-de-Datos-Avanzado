@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/music/', include('apps.music.urls')),
-    path('playlists/', include('apps.playlists.urls')),
+    path('admin/',      admin.site.urls),
+    path('api/music/',  include('apps.music.urls')),
+    path('api/users/',  include('apps.users.urls')),
+    path('api/playlists/', include('apps.playlists.urls')),
 ]

@@ -1,5 +1,5 @@
 from django.urls import path
-from ....apps.music import views
+from . import views
 
 urlpatterns = [
     path('search/',                          views.song_search,    name='song-search'),
