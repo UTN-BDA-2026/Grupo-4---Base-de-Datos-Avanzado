@@ -23,6 +23,7 @@ backend/.cache/
 backend/.pytest_cache/
 backend/.ruff_cache/
 backend/.mypy_cache/
+backend/.chache
 
 backend/.env
 backend/.env.local
