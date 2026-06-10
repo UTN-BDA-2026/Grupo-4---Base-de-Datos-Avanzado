@@ -1,23 +1,25 @@
-from django.contrib.auth import get_user_model, authenticate, login, logout
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
-User = get_user_model()
+def login_user(email: str, password: str):
+    user = authenticate(username=email, password=password)
 
-def register_user(data: dict):
-    user = User.objects.create_user(
-        username=data['username'],
-        email=data.get('email', ''),
-        password=data['password'],
-    )
-    return user
-
-
-def login_user(request, username: str, password: str):
-    user = authenticate(request, username=username, password=password)
     if not user:
         return None
-    login(request, user)
-    return user
 
+    refresh = RefreshToken.for_user(user)
 
-def logout_user(request):
-    logout(request)
+    return {
+        'user': user,
+        'access': str(refresh.access_token),
+        'refresh': str(refresh),
+    }
+
+def logout_user(refresh_token: str):
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        return {'message': 'Sesión cerrada correctamente.'}, True
+    except TokenError:
+        return {'error': 'Token inválido o expirado.'}, False

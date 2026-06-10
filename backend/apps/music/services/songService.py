@@ -46,8 +46,6 @@ def _save_song(track_data: dict, artist: Artist, album: Album) -> Song:
     return song
 
 def search_songs(query: str, limit: int = 20) -> list:
-    # 1. Buscar en la DB local (usamos icontains para capturar "Lipa" en "Dua Lipa")
-    # Buscamos coincidencias en canción, artista o incluso álbum
     local_songs = list(
         Song.objects.select_related('artist', 'album')
         .filter(
@@ -58,7 +56,6 @@ def search_songs(query: str, limit: int = 20) -> list:
         .order_by('-popularity')[:limit]
     )
 
-    # 2. Si ya tenemos el límite (ej. 20), los devolvemos de una vez
     if len(local_songs) >= limit:
         return local_songs
 
@@ -89,7 +86,6 @@ def search_songs(query: str, limit: int = 20) -> list:
                             'image_url': track['artist'].get('picture_medium', '')
                         }
                     )
-                    # Si el artista ya existía pero no tenemos su info completa, podrías actualizarlo aquí
 
                     # Lógica de Álbum
                     album_deezer_id = str(track['album']['id'])
@@ -111,7 +107,6 @@ def search_songs(query: str, limit: int = 20) -> list:
                 print(f"Error procesando track {track_id}: {e}")
                 continue
 
-    # Devolvemos la lista combinada (lo que ya había + lo nuevo de la API)
     return local_songs[:limit]
 
 
@@ -159,7 +154,6 @@ def get_song_detail(deezer_id: str) -> Song | None:
 
 
 def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
-    # Usa índice compuesto artist + popularity
     return (
         Song.objects
         .select_related('artist', 'album')
@@ -169,7 +163,6 @@ def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
 
 
 def get_albums_by_artist(deezer_id: str) -> list:
-    # Usa índice compuesto artist + release_date
     return (
         Album.objects
         .select_related('artist')
@@ -179,7 +172,6 @@ def get_albums_by_artist(deezer_id: str) -> list:
 
 
 def get_top_artists(limit: int = 20) -> list:
-    # Usa índice de followers
     return (
         Artist.objects
         .order_by('-followers')[:limit]

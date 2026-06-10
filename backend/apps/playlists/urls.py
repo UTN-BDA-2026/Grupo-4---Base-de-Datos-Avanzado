@@ -2,16 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
-    path(
-        'create/',
-        views.create_playlist,
-        name='create_playlist'
-    ),
-
-    path(
-        'my/',
-        views.my_playlists,
-        name='my_playlists'
-    ),
+    path('', views.playlists, name='playlists'),
+    path('<int:playlist_id>/', views.playlist_detail, name='playlist-detail'),
+    path('<int:playlist_id>/songs/', views.playlist_songs, name='playlist-songs'),
+    path('<int:playlist_id>/songs/<int:song_id>/', views.playlist_songs, name='playlist-songs-detail'),
 ]

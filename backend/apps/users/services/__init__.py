@@ -1,1 +1,1 @@
-from .authServices import register_user, login_user, logout_user
+from .authServices import login_user, logout_user
