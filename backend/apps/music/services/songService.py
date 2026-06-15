@@ -1,5 +1,7 @@
 from django.db.models import Q
 from django.db import transaction
+from django.core.cache import cache
+import json
 from ..models import Artist, Album, Song
 from . import deezer
 
@@ -46,10 +48,21 @@ def _save_song(track_data: dict, artist: Artist, album: Album) -> Song:
     return song
 
 def search_songs(query: str, limit: int = 20) -> list:
+    cache_key = f'search:{query.lower()}:{limit}'
+    cached    = cache.get(cache_key)
+    if cached:
+        song_ids = json.loads(cached)
+        return list(
+            Song.objects
+            .select_related('artist', 'album')
+            .filter(id__in=song_ids)
+            .order_by('-popularity')
+        )
+    
     local_songs = list(
         Song.objects.select_related('artist', 'album')
         .filter(
-            Q(title__icontains=query) | 
+            Q(title__icontains=query) |
             Q(artist__name__icontains=query) |
             Q(album__name__icontains=query)
         )
@@ -57,85 +70,62 @@ def search_songs(query: str, limit: int = 20) -> list:
     )
 
     if len(local_songs) >= limit:
+        cache.set(cache_key, json.dumps([s.id for s in local_songs]), timeout=300)
         return local_songs
 
-    # 3. Si nos faltan canciones o queremos asegurar frescura, vamos a Deezer
-    # Pedimos el limit completo a Deezer para tener de dónde elegir
     tracks_from_api = deezer.search_tracks(query, limit=limit)
-    
-    # Guardamos los IDs que ya tenemos en memoria para no duplicar
-    existing_ids = {s.deezer_id for s in local_songs}
-    
+    existing_ids    = {s.deezer_id for s in local_songs}
+
     for track in tracks_from_api:
-        # Si ya alcanzamos el límite deseado en nuestra lista final, paramos
         if len(local_songs) >= limit:
             break
-            
+
         track_id = str(track['id'])
-        
-        # Si la canción de la API NO está en nuestra lista local, la procesamos
+
         if track_id not in existing_ids:
             try:
                 with transaction.atomic():
-                    # Lógica de Artista
                     artist_deezer_id = str(track['artist']['id'])
-                    artist, created = Artist.objects.get_or_create(
+                    artist, _ = Artist.objects.get_or_create(
                         deezer_id=artist_deezer_id,
                         defaults={
-                            'name': track['artist']['name'],
+                            'name':      track['artist']['name'],
                             'image_url': track['artist'].get('picture_medium', '')
                         }
                     )
 
-                    # Lógica de Álbum
                     album_deezer_id = str(track['album']['id'])
-                    album, created = Album.objects.get_or_create(
+                    album, _ = Album.objects.get_or_create(
                         deezer_id=album_deezer_id,
                         defaults={
-                            'name': track['album']['title'],
+                            'name':      track['album']['title'],
                             'cover_url': track['album'].get('cover_medium', ''),
-                            'artist': artist
+                            'artist':    artist
                         }
                     )
 
-                    # Guardar Canción
                     song = _save_song(track, artist, album)
                     local_songs.append(song)
                     existing_ids.add(track_id)
-                    
+
             except Exception as e:
                 print(f"Error procesando track {track_id}: {e}")
                 continue
 
+    if local_songs:
+        cache.set(cache_key, json.dumps([s.id for s in local_songs]), timeout=300)
+
     return local_songs[:limit]
 
-
 def get_top_songs(limit: int = 50) -> list:
-    # Usa índice de popularity
     return (
         Song.objects
         .select_related('artist', 'album')
         .order_by('-popularity')[:limit]
     )
 
-
-def get_artist_detail(deezer_id: str) -> Artist | None:
-    try:
-        # Usa índice de deezer_id (unique)
-        return Artist.objects.prefetch_related('songs').get(deezer_id=deezer_id)
-    except Artist.DoesNotExist:
-        pass
-
-    try:
-        artist_data = deezer.get_artist(deezer_id)
-        return _save_artist(artist_data)
-    except Exception:
-        return None
-
-
 def get_song_detail(deezer_id: str) -> Song | None:
     try:
-        # Usa índice de deezer_id (unique)
         return Song.objects.select_related('artist', 'album').get(deezer_id=deezer_id)
     except Song.DoesNotExist:
         pass
@@ -152,6 +142,17 @@ def get_song_detail(deezer_id: str) -> Song | None:
     except Exception:
         return None
 
+def get_artist_detail(deezer_id: str) -> Artist | None:
+    try:
+        return Artist.objects.prefetch_related('songs').get(deezer_id=deezer_id)
+    except Artist.DoesNotExist:
+        pass
+
+    try:
+        artist_data = deezer.get_artist(deezer_id)
+        return _save_artist(artist_data)
+    except Exception:
+        return None
 
 def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
     return (
@@ -161,7 +162,6 @@ def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
         .order_by('-popularity')[:limit]
     )
 
-
 def get_albums_by_artist(deezer_id: str) -> list:
     return (
         Album.objects
@@ -169,7 +169,6 @@ def get_albums_by_artist(deezer_id: str) -> list:
         .filter(artist__deezer_id=deezer_id)
         .order_by('-release_date')
     )
-
 
 def get_top_artists(limit: int = 20) -> list:
     return (

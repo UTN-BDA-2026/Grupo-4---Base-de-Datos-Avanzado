@@ -32,6 +32,7 @@ class SongSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Song
         fields = [
+            'id',
             'deezer_id',
             'title',
             'duration_ms',

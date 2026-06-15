@@ -187,6 +187,21 @@ LOGGING = {
     },
 }
 
+# Redis caché
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Sesiones en Redis
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 # Django REST Framework Configuration
 # https://www.django-rest-framework.org/
 REST_FRAMEWORK = {

@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from .services import (
     search_songs,
     get_song_detail,
@@ -14,7 +14,7 @@ from .services import (
 from .serializers import SongSerializer, ArtistSerializer, AlbumSerializer
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def song_search(request):
     """GET /api/music/search/?q=radiohead&limit=10"""
     query = request.query_params.get('q', '').strip()
@@ -30,7 +30,7 @@ def song_search(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def song_detail(request, deezer_id):
     """GET /api/music/songs/<deezer_id>/"""
     song = get_song_detail(deezer_id)
@@ -43,7 +43,7 @@ def song_detail(request, deezer_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def artist_detail(request, deezer_id):
     """GET /api/music/artists/<deezer_id>/"""
     artist = get_artist_detail(deezer_id)
@@ -56,7 +56,7 @@ def artist_detail(request, deezer_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def top_songs(request):
     """GET /api/music/top/?limit=20"""
     limit = int(request.query_params.get('limit', 50))
@@ -65,7 +65,7 @@ def top_songs(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def artist_songs(request, deezer_id):
     """GET /api/music/artists/<deezer_id>/songs/"""
     songs = get_songs_by_artist(deezer_id)
@@ -73,7 +73,7 @@ def artist_songs(request, deezer_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def artist_albums(request, deezer_id):
     """GET /api/music/artists/<deezer_id>/albums/"""
     albums = get_albums_by_artist(deezer_id)
@@ -81,7 +81,7 @@ def artist_albums(request, deezer_id):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def top_artists(request):
     """GET /api/music/artists/top/"""
     limit   = int(request.query_params.get('limit', 20))
