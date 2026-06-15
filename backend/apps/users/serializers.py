@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from apps.music.serializers import SongSerializer
+from .models import ListeningHistory
 
 User = get_user_model()
 
@@ -26,3 +28,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model  = User
         fields = ['id', 'username', 'email']
+
+
+class ListeningHistorySerializer(serializers.ModelSerializer):
+    song = SongSerializer(read_only=True)
+
+    class Meta:
+        model  = ListeningHistory
+        fields = ['id', 'song', 'played_at']

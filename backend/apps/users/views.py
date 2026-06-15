@@ -3,9 +3,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .services import login_user, logout_user
-from .serializers import RegisterSerializer, UserSerializer
-
+from .services import login_user, logout_user, register_play, get_listening_history, get_recently_played
+from .serializers import RegisterSerializer, UserSerializer, ListeningHistorySerializer
+from apps.music.serializers import SongSerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -74,3 +74,33 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 def profile(request):
     return Response(UserSerializer(request.user).data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_history(request):
+    song_id = request.data.get('song_id')
+    if not song_id:
+        return Response(
+            {'error': 'song_id es requerido.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    result = register_play(request.user, song_id)
+    if 'error' in result:
+        return Response(result, status=status.HTTP_404_NOT_FOUND)
+    return Response(result, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def listening_history(request):
+    limit   = int(request.query_params.get('limit', 20))
+    history = get_listening_history(request.user, limit=limit)
+    return Response(ListeningHistorySerializer(history, many=True).data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recently_played(request):
+    limit = int(request.query_params.get('limit', 10))
+    songs = get_recently_played(request.user, limit=limit)
+    return Response(SongSerializer(songs, many=True).data)

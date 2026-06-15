@@ -6,4 +6,7 @@ urlpatterns = [
     path('login/',    views.login_view,   name='login'),
     path('logout/',   views.logout_view,  name='logout'),
     path('profile/',  views.profile,      name='profile'),
+    path('history/',          views.listening_history,  name='history'),
+    path('history/add/',      views.add_to_history,     name='add-history'),
+    path('recently-played/',  views.recently_played,    name='recently-played'),
 ]
