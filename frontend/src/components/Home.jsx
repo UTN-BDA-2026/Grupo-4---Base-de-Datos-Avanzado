@@ -1,32 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../index.css';
 
 const Home = () => {
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(true); 
-    const profileRef = useRef(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (profileRef.current && !profileRef.current.contains(event.target)) {
-                setIsProfileOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     return (
         <div className="saas-container">
-            {}
             <div className="app-background"></div>
             <div className="glass-overlay"></div>
 
             <div className="saas-workspace">
-                
-                {}
                 <aside className="saas-sidebar">
                     <div className="sidebar-top">
                         <div className="saas-brand">
@@ -52,53 +35,22 @@ const Home = () => {
                         </nav>
                     </div>
 
-                    <div className="sidebar-bottom" ref={profileRef}>
+                    <div className="sidebar-bottom">
+                        {/* Este botón ahora navega directamente a la ruta /perfil */}
                         <button 
-                            className={`saas-nav-btn ${isProfileOpen ? 'active' : ''}`} 
-                            onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            className="saas-nav-btn" 
+                            onClick={() => navigate('/perfil')}
                         >
                             <div className="profile-avatar">V</div>
                             <span className="sidebar-text">Perfil</span>
                         </button>
-
-                        {}
-                        {isProfileOpen && (
-                            <div className="profile-popover">
-                                <div className="popover-header">
-                                    <h4>Victoria</h4>
-                                    <p>Suscripción Premium</p>
-                                </div>
-                                <div className="popover-body">
-                                    {isAuthenticated ? (
-                                        <>
-                                            <button>Información del usuario</button>
-                                            <button>Editar perfil</button>
-                                            <button>Preferencias</button>
-                                            <button>Configuración</button>
-                                            <button>Tema visual</button>
-                                            <div className="divider"></div>
-                                            <button className="danger" onClick={() => navigate('/login')}>Cerrar sesión</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => navigate('/login')}>Iniciar sesión</button>
-                                            <button onClick={() => navigate('/registro')}>Registrarse</button>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </aside>
 
-                {/* 2. PANEL PRINCIPAL */}
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
-                        
-                        {}
                         <div className="content-wrapper">
                             
-                            {}
                             <div className="search-pill-container">
                                 <div className="saas-search-pill">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -106,7 +58,6 @@ const Home = () => {
                                 </div>
                             </div>
 
-                            {}
                             <section className="hero-section">
                                 <h1 className="saas-title">Para ti</h1>
                                 <div className="saas-hero-grid">
@@ -125,7 +76,6 @@ const Home = () => {
                                 </div>
                             </section>
 
-                            {}
                             <section className="feed-section">
                                 <h2 className="saas-subtitle">Continuar escuchando</h2>
                                 <div className="compact-grid">
@@ -149,10 +99,8 @@ const Home = () => {
                         </div>
                     </div>
                 </main>
-
             </div>
 
-            {}
             <div className="saas-player-capsule">
                 <div className="player-track">
                     <div className="track-art"></div>

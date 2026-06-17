@@ -1,22 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import LogoutModal from './LogoutModal';
 import '../index.css';
 
 const Profile = () => {
-    const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const profileRef = useRef(null);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (profileRef.current && !profileRef.current.contains(event.target)) {
-                setIsProfileOpen(false);
-            }
-        };
-        
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    const handleLogout = () => {
+        navigate('/login');
+    };
 
     return (
         <div className="saas-container">
@@ -49,30 +42,15 @@ const Profile = () => {
                         </nav>
                     </div>
 
-                    <div className="sidebar-bottom" ref={profileRef}>
+                    <div className="sidebar-bottom">
+                        {/* El botón de perfil ahora navega directamente y ya no abre menús */}
                         <button 
                             className="saas-nav-btn active" 
-                            onClick={() => setIsProfileOpen(!isProfileOpen)}
+                            onClick={() => navigate('/perfil')}
                         >
-                            <div className="profile-avatar">V</div>
+                            <div className="profile-avatar">AV</div>
                             <span className="sidebar-text">Perfil</span>
                         </button>
-
-                        {isProfileOpen && (
-                            <div className="profile-popover">
-                                <div className="popover-header">
-                                    <h4>Victoria</h4>
-                                    <p>Suscripción Premium</p>
-                                </div>
-                                <div className="popover-body">
-                                    <button>Editar perfil</button>
-                                    <button>Preferencias</button>
-                                    <button>Configuración</button>
-                                    <div className="divider"></div>
-                                    <button className="danger" onClick={() => navigate('/login')}>Cerrar sesión</button>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </aside>
 
@@ -80,22 +58,36 @@ const Profile = () => {
                     <div className="saas-content-scroll">
                         <div className="content-wrapper">
                             
+                            {/* Cabecera del Perfil idéntica a la imagen */}
                             <section className="profile-hero">
-                                <div className="profile-avatar-large">V</div>
-                                <div className="profile-info">
-                                    <span className="profile-label">Perfil verificado</span>
-                                    <h1 className="profile-name">Victoria Sanchez</h1>
-                                    <p className="profile-stats">
-                                        <strong>12</strong> Playlists Públicas &nbsp;•&nbsp; <strong>48</strong> Seguidores &nbsp;•&nbsp; <strong>12</strong> Siguiendo
-                                    </p>
+                                <div className="profile-hero-left">
+                                    <div className="profile-avatar-large">AV</div>
+                                    <div className="profile-info">
+                                        <span className="profile-label">PERFIL</span>
+                                        <h1 className="profile-name">Victoria Sachez</h1>
+                                        <div className="profile-badges">
+                                            <span className="badge-dark">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                                Vicky@beats.com
+                                            </span>
+                                            <span className="badge-dark">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5eead4" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                                Cuenta activa
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {/* Botón de Logout lateral */}
+                                <button className="btn-logout" onClick={() => setIsLogoutModalOpen(true)}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                    Logout
+                                </button>
                             </section>
 
                             <div className="profile-tabs">
                                 <button className="profile-tab active">Resumen</button>
                                 <button className="profile-tab">Playlists</button>
-                                <button className="profile-tab">Siguiendo</button>
-                                <button className="profile-tab">Seguidores</button>
                             </div>
 
                             <section className="profile-section">
@@ -175,6 +167,12 @@ const Profile = () => {
                     <span>-1:50</span>
                 </div>
             </div>
+
+            <LogoutModal 
+                isOpen={isLogoutModalOpen} 
+                onClose={() => setIsLogoutModalOpen(false)} 
+                onConfirm={handleLogout} 
+            />
         </div>
     );
 };

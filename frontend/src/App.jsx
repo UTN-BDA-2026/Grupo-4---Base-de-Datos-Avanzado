@@ -12,13 +12,13 @@ function App() {
         <Route path="/registro" element={<Register />} />
         <Route path="/home" element={<Home />} />
         
-        {/* Aquí nos aseguramos de que la ruta sea exactamente "perfil" */}
+        {}
         <Route path="/perfil" element={<Profile />} /> 
         
-        {/* Si entras a la raíz, te manda al login */}
+        {}
         <Route path="/" element={<Navigate to="/login" />} /> 
         
-        {/* Si escribes cualquier otra cosa (ej: /Profile con mayúscula), te redirige al home para que la pantalla NUNCA quede negra */}
+        {}
         <Route path="*" element={<Navigate to="/home" />} /> 
       </Routes>
     </Router>

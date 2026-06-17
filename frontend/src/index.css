@@ -566,81 +566,106 @@ body {
    DISEÑO SAAS PREMIUM - VISTA PERFIL
    ========================================= */
 
-/* Hero del Perfil */
+/* =========================================
+   PROFILE CONTENT
+   ========================================= */
 .profile-hero {
     display: flex;
-    align-items: flex-end;
-    gap: 32px;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 24px;
     margin-bottom: 48px;
+    background: radial-gradient(circle at top left, rgba(20, 60, 45, 0.4) 0%, rgba(18, 18, 18, 0.2) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 40px;
+    padding: 40px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+}
+
+.profile-hero-left {
+    display: flex;
+    align-items: center;
+    gap: 40px;
 }
 
 .profile-avatar-large {
-    width: 192px;
-    height: 192px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #124330, #5eead4);
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    width: 160px;
+    height: 160px;
+    border-radius: 40px; /* Forma Squircle en lugar de círculo perfecto */
+    background: linear-gradient(135deg, #0d3b2c, #2a7a60);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 72px;
-    font-weight: 800;
-    color: #000;
-}
-
-.profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.profile-label {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #5eead4;
-}
-
-.profile-name {
-    margin: 0;
-    font-size: 72px;
+    font-size: 64px;
     font-weight: 900;
-    letter-spacing: -2.5px;
-    line-height: 1;
-    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-}
-
-.profile-stats {
-    margin: 8px 0 0 0;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.profile-stats strong {
     color: #ffffff;
 }
 
-/* Pestañas (Tabs) */
+.profile-info { display: flex; flex-direction: column; gap: 8px; }
+.profile-label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #5eead4; margin-bottom: 4px;}
+.profile-name { margin: 0; font-size: 64px; font-weight: 900; letter-spacing: -2px; line-height: 1; text-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+
+.profile-badges {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.profile-badges .badge-dark {
+    margin: 0;
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Estilo del botón de Logout */
+.btn-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 32px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-logout:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* =========================================
+   Pestañas (Tabs)
+   ========================================= */
 .profile-tabs {
     display: flex;
-    gap: 32px;
+    gap: 40px; /* Esta es la magia que las separa */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 48px;
+    width: 100%;
 }
 
 .profile-tab {
     background: transparent;
     border: none;
     color: rgba(255, 255, 255, 0.5);
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     padding: 0 0 16px 0;
     cursor: pointer;
     position: relative;
     transition: color 0.2s;
+    white-space: nowrap; /* Evita que el texto colapse y se amontone */
 }
 
 .profile-tab:hover {
@@ -810,4 +835,119 @@ body {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.4);
     font-variant-numeric: tabular-nums;
+}
+
+/* =========================================
+   MODAL DE LOGOUT
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.glass-modal {
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 32px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.15);
+}
+
+.modal-title {
+    margin: 0 0 12px 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.modal-text {
+    margin: 0 0 32px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.btn-glass {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+    padding: 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-glass:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-danger-fill {
+    flex: 1;
+    background: #ef4444;
+    border: none;
+    color: white;
+    padding: 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+}
+
+.btn-danger-fill:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(239, 68, 68, 0.4);
 }
