@@ -42,3 +42,32 @@ class SongSerializer(serializers.ModelSerializer):
             'artist',
             'album',
         ]
+
+class TopArtistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = [
+            'deezer_id',
+            'name',
+            'image_url',
+            'followers',
+        ]
+
+class ArtistMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = ['deezer_id', 'name', 'image_url']
+
+
+class TopAlbumSerializer(serializers.ModelSerializer):
+    artist = ArtistMinimalSerializer(read_only=True)
+
+    class Meta:
+        model = Album
+        fields = [
+            'deezer_id',
+            'name',
+            'cover_url',
+            'release_date',
+            'artist',
+        ]

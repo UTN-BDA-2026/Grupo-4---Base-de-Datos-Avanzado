@@ -24,3 +24,14 @@ def get_track(deezer_track_id: int) -> dict:
     response = requests.get(f'{DEEZER_BASE_URL}/track/{deezer_track_id}')
     response.raise_for_status()
     return response.json()
+
+
+def get_top_artists(limit: int = 10) -> list:
+    response = requests.get(f'{DEEZER_BASE_URL}/chart/0/artists', params={'limit': limit})
+    response.raise_for_status()
+    return response.json().get('data', [])  
+
+def get_top_albums(limit: int = 10) -> list:
+    response = requests.get(f'{DEEZER_BASE_URL}/chart/0/albums', params={'limit': limit})
+    response.raise_for_status()
+    return response.json().get('data', [])  

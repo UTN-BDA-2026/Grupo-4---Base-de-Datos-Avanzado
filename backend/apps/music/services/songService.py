@@ -6,15 +6,19 @@ from ..models import Artist, Album, Song
 from . import deezer
 
 def _save_artist(artist_data: dict) -> Artist:
+    defaults = {
+        'name':      artist_data['name'],
+        'image_url': artist_data.get('picture_medium', ''),
+        'genres':    [],
+    }
+    
+    if 'nb_fan' in artist_data:
+        defaults['followers']  = artist_data['nb_fan']
+        defaults['popularity'] = artist_data['nb_fan']
+
     artist, _ = Artist.objects.update_or_create(
         deezer_id=str(artist_data['id']),
-        defaults={
-            'name':       artist_data['name'],
-            'image_url':  artist_data.get('picture_medium', ''),
-            'genres':     [],
-            'followers':  artist_data.get('nb_fan', 0),
-            'popularity': artist_data.get('nb_fan', 0),
-        }
+        defaults=defaults
     )
     return artist
 
@@ -170,8 +174,99 @@ def get_albums_by_artist(deezer_id: str) -> list:
         .order_by('-release_date')
     )
 
-def get_top_artists(limit: int = 20) -> list:
+def get_album_detail(deezer_id: str) -> Album | None:
+    try:
+        return Album.objects.select_related('artist').get(deezer_id=deezer_id)
+    except Album.DoesNotExist:
+        pass
+
+    try:
+        album_data  = deezer.get_album(deezer_id)
+        artist_data = deezer.get_artist(album_data['artist']['id'])
+        with transaction.atomic():
+            artist = _save_artist(artist_data)
+            album  = _save_album(album_data, artist)
+        return album
+    except Exception:
+        return None
+
+def get_songs_by_album(deezer_id: str) -> list:
     return (
-        Artist.objects
-        .order_by('-followers')[:limit]
+        Song.objects
+        .select_related('artist', 'album')
+        .filter(album__deezer_id=deezer_id)
+        .order_by('track_number')
     )
+
+def get_top_artists(limit: int = 10) -> list:
+    cache_key = f'home:top_artists_followers:{limit}'
+    
+    try:
+        top_artists_api = deezer.get_top_artists(limit=limit)
+        local_artists = []
+
+        for artist_data in top_artists_api:
+            try:
+                deezer_id_str = str(artist_data['id'])
+                artist_local = Artist.objects.filter(deezer_id=deezer_id_str).first()
+
+                if not artist_local or artist_local.followers == 0:
+                    try:
+                        full_artist_data = deezer.get_artist(artist_data['id'])
+                        artist = _save_artist(full_artist_data)
+                    except Exception:
+                        artist = _save_artist(artist_data)
+                else:
+                    artist = _save_artist(artist_data)
+
+                local_artists.append(artist)
+            except Exception as e:
+                print(f"Error procesando artista {artist_data.get('id')}: {e}")
+                continue
+
+        if local_artists:
+            cache.set(cache_key, json.dumps([a.id for a in local_artists]), timeout=600)
+            return local_artists
+
+    except Exception as e:
+        print(f"Error conectando con Deezer Charts, usando respaldo local: {e}")
+
+    return list(Artist.objects.order_by('-followers')[:limit])
+
+def get_top_albums(limit: int = 10) -> list:
+    cache_key = f'home:top_albums:{limit}'
+    cached = cache.get(cache_key)
+    
+    if cached:
+        album_ids = json.loads(cached)
+        return list(Album.objects.select_related('artist').filter(id__in=album_ids))
+
+    try:
+        top_albums_api = deezer.get_top_albums(limit=limit)
+        local_albums = []
+
+        for album_data in top_albums_api:
+            try:
+                with transaction.atomic():
+                    artist_deezer_id = str(album_data['artist']['id'])
+                    artist, _ = Artist.objects.get_or_create(
+                        deezer_id=artist_deezer_id,
+                        defaults={
+                            'name':      album_data['artist']['name'],
+                            'image_url': album_data['artist'].get('picture_medium', '')
+                        }
+                    )
+                    album = _save_album(album_data, artist)
+                    local_albums.append(album)
+            except Exception as e:
+                print(f"Error guardando álbum top {album_data.get('id')}: {e}")
+                continue
+
+        if local_albums:
+            cache.set(cache_key, json.dumps([a.id for a in local_albums]), timeout=600)
+            return local_albums
+
+    except Exception as e:
+        print(f"Error conectando con Deezer para álbumes, usando respaldo local: {e}")
+
+    return list(Album.objects.select_related('artist').all()[:limit])

@@ -9,9 +9,12 @@ from .services import (
     get_top_songs,
     get_songs_by_artist,
     get_albums_by_artist,
+    get_album_detail,
+    get_songs_by_album,
     get_top_artists,
+    get_top_albums,
 )
-from .serializers import SongSerializer, ArtistSerializer, AlbumSerializer
+from .serializers import SongSerializer, ArtistSerializer, AlbumSerializer, TopArtistSerializer, TopAlbumSerializer
 from .models import Artist, Album
 
 @api_view(['GET'])
@@ -97,7 +100,33 @@ def artist_albums(request, deezer_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def album_detail(request, deezer_id):
+    album = get_album_detail(deezer_id)
+    if not album:
+        return Response(
+            {'error': 'Álbum no encontrado.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    return Response(AlbumSerializer(album).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def album_songs(request, deezer_id):
+    songs = get_songs_by_album(deezer_id)
+    return Response(SongSerializer(songs, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def top_artists(request):
     limit   = int(request.query_params.get('limit', 20))
     artists = get_top_artists(limit=limit)
-    return Response(ArtistSerializer(artists, many=True).data)
+    return Response(TopArtistSerializer(artists, many=True).data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def top_albums(request):
+    limit = int(request.query_params.get('limit', 10))
+    albums = get_top_albums(limit=limit)
+    return Response(TopAlbumSerializer(albums, many=True).data)
