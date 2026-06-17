@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================================
-   ESTILOS GLOBALES Y LOGIN/REGISTRO (MANTENIDO)
+   ESTILOS GLOBALES Y LOGIN/REGISTRO
    ========================================= */
 body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background-color: #050505; 
     color: white;
 }
@@ -15,542 +15,583 @@ body {
 #root {
     width: 100%;
     min-height: 100vh;
+}
+
+/* Contenedor central para los formularios */
+.auth-workspace {
+    position: relative;
+    z-index: 10;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
     box-sizing: border-box;
 }
 
 .register-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 32px;
     max-width: 1000px;
     width: 100%;
     flex-wrap: wrap; 
 }
 
-.info-panel, .login-info-panel, .form-panel {
-    background-color: #121212;
-    border-radius: 24px;
-    padding: 50px 40px;
+/* --- PANELES GLASSMORPHISM (Igual al Home) --- */
+.info-panel, .form-panel {
+    background: rgba(18, 18, 18, 0.35); 
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    
+    /* 1. Solución al bug del halo borroso en los bordes */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    /* 2. Recorta el fondo estrictamente al borde redondeado */
+    background-clip: padding-box;
+
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 56px 48px;
     flex: 1;
     min-width: 320px;
-    border: 1px solid rgba(255, 255, 255, 0.03);
     display: flex;
     flex-direction: column;
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
 }
 
-.badge { color: #5eead4; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; display: inline-block; }
-.info-panel h1, .login-info-panel h1 { font-size: 58px; font-weight: 900; line-height: 1.1; margin: 20px 0; letter-spacing: -2px; text-align: left; }
-.info-panel p, .login-info-panel p { color: #a3a3a3; font-size: 15px; line-height: 1.5; margin-bottom: 40px; text-align: left; }
-.feature-item { display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px 20px; border-radius: 12px; margin-bottom: 12px; font-size: 14px; color: #e5e5e5; }
-.login-info-panel { background: radial-gradient(circle at top left, #124330 0%, #121212 60%); align-items: flex-start; }
-.badge-dark { background-color: rgba(255, 255, 255, 0.05); color: #a3a3a3; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
-.stats-container { display: flex; gap: 10px; margin-top: auto; padding-top: 40px; }
-.stat-pill { border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 10px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
-.music-icon-box { background-color: #5eead4; width: 48px; height: 48px; border-radius: 14px; display: flex; justify-content: center; align-items: center; color: #000; margin-bottom: 25px; }
-.form-panel h2 { font-size: 32px; font-weight: 800; margin-top: 0; margin-bottom: 30px; }
-.input-group { display: flex; flex-direction: column; margin-bottom: 20px; }
-.input-group label { font-size: 13px; font-weight: 600; color: #e5e5e5; margin-bottom: 8px; }
-.custom-input { width: 100%; background-color: #1a1a1a; border: 1px solid transparent; color: white; border-radius: 12px; padding: 14px; font-size: 15px; outline: none; transition: all 0.2s; box-sizing: border-box; }
-.custom-input:focus { border-color: #5eead4; background-color: #222222; }
-.submit-btn { width: 100%; background-color: #5eead4; color: #000; border: none; padding: 16px; border-radius: 30px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; transition: transform 0.2s, opacity 0.2s; }
-.submit-btn:hover { transform: scale(1.02); opacity: 0.9; }
-.login-link { text-align: center; margin-top: 25px; font-size: 14px; color: #a3a3a3; }
-.login-link a { text-decoration: none; }
-.login-link span { color: #5eead4; font-weight: bold; margin-left: 5px; }
+/* Panel izquierdo de Login con radial gradient integrado al Glass */
+.login-info-panel {
+    background: radial-gradient(circle at top left, rgba(18, 67, 48, 0.5) 0%, rgba(18, 18, 18, 0.2) 60%);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    
+    /* 1. Solución al bug del halo borroso en los bordes */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    background-clip: padding-box;
 
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 56px 48px;
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Panel izquierdo de Login con radial gradient integrado al Glass */
+.login-info-panel {
+    background: radial-gradient(circle at top left, rgba(18, 67, 48, 0.5) 0%, rgba(18, 18, 18, 0.2) 60%);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 56px 48px;
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Textos Generales */
+.badge { color: #5eead4; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; display: inline-block; }
+.info-panel h1, .login-info-panel h1 { font-size: 56px; font-weight: 800; line-height: 1.1; margin: 20px 0; letter-spacing: -2px; text-align: left; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.info-panel p, .login-info-panel p { color: rgba(255, 255, 255, 0.7); font-size: 15px; line-height: 1.6; margin-bottom: 40px; text-align: left; }
+
+/* Features & Stats Cristalinas */
+.feature-item { display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 14px 20px; border-radius: 16px; margin-bottom: 12px; font-size: 14px; color: #e5e5e5; }
+.badge-dark { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.05); color: #a3a3a3; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+.stats-container { display: flex; gap: 10px; margin-top: auto; padding-top: 40px; }
+.stat-pill { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); color: white; padding: 10px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.music-icon-box { background: linear-gradient(135deg, #124330, #5eead4); width: 48px; height: 48px; border-radius: 14px; display: flex; justify-content: center; align-items: center; color: #000; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2); }
+
+/* --- Inputs Premium --- */
+.form-panel h2 { font-size: 32px; font-weight: 800; margin-top: 0; margin-bottom: 32px; letter-spacing: -0.5px; }
+.input-group { display: flex; flex-direction: column; margin-bottom: 24px; }
+.input-group label { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 8px; }
+
+.custom-input { 
+    width: 100%; 
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid rgba(255, 255, 255, 0.05); 
+    color: white; 
+    border-radius: 16px; 
+    padding: 16px; 
+    font-size: 15px; 
+    outline: none; 
+    transition: all 0.3s ease; 
+    box-sizing: border-box; 
+}
+
+.custom-input:focus { 
+    background: rgba(255, 255, 255, 0.06); 
+    border-color: rgba(94, 234, 212, 0.5); 
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Botones y Links */
+.submit-btn { 
+    width: 100%; 
+    background-color: #5eead4; 
+    color: #000; 
+    border: none; 
+    padding: 16px; 
+    border-radius: 32px; 
+    font-size: 16px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 8px; 
+    margin-top: 16px; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2);
+}
+
+.submit-btn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 12px 24px rgba(94, 234, 212, 0.4); 
+}
+
+.options-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 13px; color: rgba(255, 255, 255, 0.7); }
+.remember-me { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 500; }
+.recover-link { color: #5eead4; text-decoration: none; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+.recover-link:hover { opacity: 0.8; }
+.login-link { text-align: center; margin-top: 25px; font-size: 14px; color: rgba(255, 255, 255, 0.6); }
+.login-link a { text-decoration: none; }
+.login-link span { color: #5eead4; font-weight: 600; margin-left: 5px; transition: opacity 0.2s; }
+.login-link span:hover { opacity: 0.8; }
 
 /* =========================================
-   DISEÑO SAAS PREMIUM (LINEAR / ARC STYLE)
+   DISEÑO SAAS PREMIUM (Atmósfera Cinematográfica & Glass)
    ========================================= */
 
 .saas-container {
     width: 100vw;
     height: 100vh;
-    background-color: #030303;
     position: fixed;
     inset: 0;
     overflow: hidden;
     color: #ffffff;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #050505;
 }
 
-/* Fondo Ambiental Suave */
-.saas-ambient-bg {
+/* /* --- Fondo Inmersivo Cinematográfico --- */
+.app-background {
+    position: absolute;
+    inset: -5%; 
+    width: 110vw;
+    height: 110vh;
+    /* Aseguramos que cargue tu imagen correcta */
+    background-image: url('./assets/background.png');
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+    /* Reducimos un poco el blur inicial para que las formas y colores de la imagen "pasen" hacia los paneles */
+    filter: blur(24px) saturate(130%); 
+}
+
+.glass-overlay {
     position: absolute;
     inset: 0;
-    z-index: 0;
-    pointer-events: none;
+    /* Capa oscura mucho más transparente. Arriba deja pasar luz (40%) y oscurece abajo (85%) */
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.85) 100%);
+    z-index: 1;
 }
 
-.glow {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(140px);
-    opacity: 0.35;
-}
-
-.glow-emerald {
-    width: 50vw;
-    height: 50vh;
-    background: #047857;
-    top: -10%;
-    left: -5%;
-}
-
-.glow-petrol {
-    width: 60vw;
-    height: 60vh;
-    background: #0ea5e9;
-    bottom: -15%;
-    right: -10%;
-}
-
-/* Layout Espacial */
+/* --- Layout Principal --- */
 .saas-workspace {
     position: relative;
     z-index: 10;
     display: flex;
     height: 100%;
-    padding: 24px;
-    gap: 24px;
+    padding: 32px;
+    gap: 32px;
     box-sizing: border-box;
-    /* Margen generoso abajo para el reproductor flotante */
-    padding-bottom: 130px; 
+    padding-bottom: 120px; 
 }
 
-/* Paneles Glassmorphism */
+/* --- Paneles Glassmorphism Premium --- */
 .saas-sidebar, .saas-main-panel {
-    background: rgba(255, 255, 255, 0.02);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    /* Aquí está la magia: Redujimos la opacidad al 15% (0.15) para máxima transparencia */
+    background: rgba(18, 18, 18, 0.3);
+    backdrop-filter: blur(48px);
+    -webkit-backdrop-filter: blur(48px);
+    /* Reflejos de luz sutiles en los bordes como un cristal de verdad */
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 32px;
-    box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
 }
 
-/* Sidebar Elegante */
+/* --- Paneles Glassmorphism Premium --- */
+/* Esta regla unifica la apariencia de cristal ahumado para los paneles mayores */
+.saas-sidebar, .saas-main-panel {
+    background: rgba(20, 20, 20, 0.25);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    /* Borde superior sutil para simular el reflejo de la luz en el cristal */
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px; /* Más redondeado y orgánico */
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+}
+
+/* --- Sidebar Atmosférica --- */
 .saas-sidebar {
-    width: 260px;
+    width: 80px;
     display: flex;
     flex-direction: column;
-    padding: 32px 24px;
+    justify-content: space-between;
+    padding: 32px 0;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: visible; 
+    /* Volvemos a relative para que sea parte de la estructura normal */
+    position: relative; 
+    z-index: 20;
 }
 
-.saas-brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 48px;
-    padding-left: 8px;
+.saas-sidebar:hover { 
+    width: 240px; 
 }
 
-.brand-logo {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #10b981, #0ea5e9);
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
-}
-
-.saas-brand span {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-}
-
-.saas-nav-section {
-    margin-bottom: 32px;
-}
-
-.nav-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #71717a;
-    font-weight: 600;
-    margin-bottom: 12px;
-    padding-left: 12px;
-    display: block;
-}
-
-.saas-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.saas-nav a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    text-decoration: none;
-    color: #a1a1aa;
+.sidebar-text {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
     font-size: 14px;
     font-weight: 500;
-    border-radius: 16px;
-    transition: all 0.2s ease;
 }
 
-.saas-nav a svg {
-    opacity: 0.7;
+.saas-sidebar:hover .sidebar-text { opacity: 1; transition-delay: 0.1s; }
+
+.sidebar-top { display: flex; flex-direction: column; gap: 40px; }
+
+.saas-brand { display: flex; align-items: center; gap: 16px; padding: 0 20px; }
+.brand-logo { 
+    min-width: 40px; height: 40px; 
+    background: linear-gradient(135deg, #124330, #5eead4); 
+    color: #000; border-radius: 14px; 
+    display: flex; justify-content: center; align-items: center; 
+    box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2); 
+}
+.saas-brand .sidebar-text { font-weight: 800; font-size: 16px; letter-spacing: -0.5px;}
+
+.saas-nav { display: flex; flex-direction: column; gap: 8px; padding: 0 12px; }
+.saas-nav a, .saas-nav-btn { 
+    display: flex; align-items: center; gap: 16px; padding: 14px; 
+    text-decoration: none; color: rgba(255, 255, 255, 0.5); 
+    border-radius: 20px; transition: all 0.3s ease; 
+    background: transparent; border: none; cursor: pointer; width: 100%; box-sizing: border-box; 
+}
+.saas-nav a svg, .saas-nav-btn svg { min-width: 20px; }
+
+.saas-nav a:hover, .saas-nav-btn:hover { color: #ffffff; }
+.saas-nav a.active { 
+    background: rgba(255, 255, 255, 0.06); 
+    color: #ffffff; 
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
-.saas-nav a:hover, .saas-nav a.active {
-    background: rgba(255, 255, 255, 0.04);
-    color: #ffffff;
+.sidebar-bottom { padding: 0 12px; position: relative; }
+.profile-avatar { 
+    min-width: 32px; height: 32px; border-radius: 50%; 
+    background-color: #5eead4; color: #000; 
+    display: flex; justify-content: center; align-items: center; 
+    font-weight: 700; font-size: 13px; margin-left: -6px; 
 }
 
-.saas-nav a.active svg {
-    opacity: 1;
-}
-
-.saas-sidebar-footer {
-    margin-top: auto;
-    padding: 0 12px;
-}
-
-.status-indicator {
+/* --- Main Panel Centrado --- */
+.saas-main-panel {
+    flex: 1; /* Vuelve a ocupar el espacio restante naturalmente */
     display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #71717a;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    /* Tu ajuste: 60% de opacidad para el panel principal */
+    background: rgba(20, 20, 20, 0.6); 
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px; 
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
+    transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Efecto cinematográfico: desenfoca el contenido cuando usas la barra lateral */
+.saas-sidebar:hover + .saas-main-panel {
+    filter: blur(8px) brightness(0.7); 
+    pointer-events: none; 
+}
+
+.saas-content-scroll {
+    padding: 48px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+.saas-content-scroll::-webkit-scrollbar { display: none; }
+
+.saas-content-scroll {
+    padding: 48px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+.saas-content-scroll::-webkit-scrollbar { display: none; }
+
+.sidebar-text {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    font-size: 14px;
     font-weight: 500;
 }
 
-.status-indicator .dot {
-    width: 8px;
-    height: 8px;
-    background-color: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+.saas-sidebar:hover .sidebar-text { opacity: 1; transition-delay: 0.1s; }
+
+.sidebar-top { display: flex; flex-direction: column; gap: 40px; }
+
+.saas-brand { display: flex; align-items: center; gap: 16px; padding: 0 20px; }
+.brand-logo { 
+    min-width: 40px; height: 40px; 
+    background: linear-gradient(135deg, #124330, #5eead4); 
+    color: #000; border-radius: 14px; 
+    display: flex; justify-content: center; align-items: center; 
+    box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2); /* Resplandor del logo */
+}
+.saas-brand .sidebar-text { font-weight: 800; font-size: 16px; letter-spacing: -0.5px;}
+
+.saas-nav { display: flex; flex-direction: column; gap: 8px; padding: 0 12px; }
+.saas-nav a, .saas-nav-btn { 
+    display: flex; align-items: center; gap: 16px; padding: 14px; 
+    text-decoration: none; color: rgba(255, 255, 255, 0.5); 
+    border-radius: 20px; transition: all 0.3s ease; 
+    background: transparent; border: none; cursor: pointer; width: 100%; box-sizing: border-box; 
+}
+.saas-nav a svg, .saas-nav-btn svg { min-width: 20px; }
+
+/* El estado hover es súper sutil, no un bloque gris feo */
+.saas-nav a:hover, .saas-nav-btn:hover { color: #ffffff; }
+.saas-nav a.active { 
+    background: rgba(255, 255, 255, 0.06); 
+    color: #ffffff; 
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
 }
 
-/* Main Panel Minimalista */
+.sidebar-bottom { padding: 0 12px; position: relative; }
+.profile-avatar { 
+    min-width: 32px; height: 32px; border-radius: 50%; 
+    background-color: #5eead4; color: #000; 
+    display: flex; justify-content: center; align-items: center; 
+    font-weight: 700; font-size: 13px; margin-left: -6px; 
+}
+
+/* --- Popover de Perfil (Flotante y Blur) --- */
+.profile-popover {
+    position: absolute;
+    bottom: 0;
+    left: calc(100% + 16px);
+    width: 240px;
+    background: rgba(15, 15, 15, 0.6);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    z-index: 100;
+    animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateX(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+.popover-header { padding: 24px 20px 16px; background: transparent; }
+.popover-header h4 { margin: 0 0 4px 0; font-size: 16px; font-weight: 700; }
+.popover-header p { margin: 0; font-size: 12px; color: #5eead4; }
+
+.popover-body { padding: 8px; display: flex; flex-direction: column; gap: 2px;}
+.popover-body button { text-align: left; background: transparent; border: none; color: rgba(255, 255, 255, 0.7); padding: 12px 16px; border-radius: 16px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.popover-body button:hover { background: rgba(255, 255, 255, 0.05); color: #fff; }
+.popover-body .divider { height: 1px; background: rgba(255, 255, 255, 0.05); margin: 8px; }
+.popover-body .danger { color: #f87171; }
+.popover-body .danger:hover { background: rgba(248, 113, 113, 0.1); }
+
+/* --- Main Panel Centrado --- */
 .saas-main-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-}
-
-.saas-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 32px 48px;
-}
-
-.saas-search-pill {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 10px 20px;
-    border-radius: 30px;
-    width: 320px;
-    transition: background 0.2s;
-}
-
-.saas-search-pill:focus-within {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.saas-search-pill svg {
-    color: #71717a;
-}
-
-.saas-search-pill input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 100%;
-    font-family: inherit;
-    font-size: 14px;
-}
-
-.saas-search-pill input::placeholder {
-    color: #71717a;
-}
-
-.saas-profile-container {
     position: relative;
 }
 
-.saas-profile-pill {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 6px 16px 6px 6px;
-    border-radius: 32px;
-    cursor: pointer;
-    color: white;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    transition: background 0.2s;
-}
-
-.saas-profile-pill:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.saas-profile-pill .avatar {
-    width: 32px;
-    height: 32px;
-    background: #0ea5e9;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: 700;
-}
-
-.saas-dropdown {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    background: rgba(20, 20, 20, 0.8);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 8px;
-    min-width: 220px;
-    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
-    z-index: 100;
-}
-
-.saas-dropdown button {
-    width: 100%;
-    text-align: left;
-    background: transparent;
-    border: none;
-    color: #e4e4e7;
-    padding: 12px 16px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.saas-dropdown button:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-}
-
-.saas-dropdown .danger { color: #f87171; }
-.saas-dropdown .danger:hover { background: rgba(248, 113, 113, 0.1); }
-.saas-dropdown .divider { height: 1px; background: rgba(255, 255, 255, 0.05); margin: 4px 8px; }
-
-/* Contenido / Tarjetas Cristalinas */
 .saas-content-scroll {
-    padding: 0 48px 48px 48px;
+    padding: 48px;
     overflow-y: auto;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
 }
-
 .saas-content-scroll::-webkit-scrollbar { display: none; }
 
-.saas-title {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    margin-bottom: 32px;
+.content-wrapper {
+    width: 100%;
+    max-width: 1100px; 
+    display: flex;
+    flex-direction: column;
 }
 
-.saas-card-grid {
+/* Búsqueda Integrada */
+.search-pill-container { display: flex; justify-content: flex-start; margin-bottom: 64px; width: 100%; }
+.saas-search-pill {
+    display: flex; align-items: center; gap: 16px; 
+    background: rgba(255, 255, 255, 0.02); 
+    border: 1px solid rgba(255, 255, 255, 0.04); 
+    padding: 16px 28px; border-radius: 40px; width: 100%; max-width: 500px; 
+    transition: all 0.3s ease;
+}
+.saas-search-pill:focus-within {
+    background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+}
+.saas-search-pill svg { color: rgba(255, 255, 255, 0.4); }
+.saas-search-pill input { background: transparent; border: none; color: white; outline: none; width: 100%; font-size: 15px; }
+.saas-search-pill input::placeholder { color: rgba(255, 255, 255, 0.4); }
+
+/* Textos */
+.saas-title { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin: 0 0 32px 0; }
+.saas-subtitle { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin: 56px 0 24px 0; }
+
+/* Grid Hero (Tarjetas de Color Puro) */
+.saas-hero-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
 }
 
-.saas-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+.hero-card {
+    height: 340px; 
     border-radius: 32px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Sombras que toman el color del fondo para dar brillo (Glow) */
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Sutil oscurecimiento inferior para que el texto resalte siempre */
+.hero-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
+    z-index: 1; pointer-events: none;
+}
+
+.hero-card:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    box-shadow: 0 32px 64px -12px rgba(0,0,0,0.8); 
+}
+
+.hero-card h3 { position: relative; z-index: 2; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.hero-card p { position: relative; z-index: 2; margin: 0; font-size: 15px; color: rgba(255,255,255,0.9); font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+/* Gradientes vivos y modernos (igual a tu referencia) */
+.card-teal { background: linear-gradient(145deg, #2dd4bf, #0f766e); }
+.card-purple { background: linear-gradient(145deg, #c026d3, #7e22ce); }
+.card-orange { background: linear-gradient(145deg, #fbbf24, #ea580c); }
+
+/* Grid Compacta (Continuar escuchando) */
+.compact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.feed-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
     padding: 16px;
     transition: all 0.3s ease;
     cursor: pointer;
-}
-
-.saas-card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    transform: translateY(-4px);
-}
-
-.card-art {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 24px;
-    margin-bottom: 20px;
-}
-
-.gradient-1 { background: linear-gradient(135deg, #0d9488, #0284c7); }
-.gradient-2 { background: linear-gradient(135deg, #9333ea, #db2777); }
-.gradient-3 { background: linear-gradient(135deg, #ea580c, #ca8a04); }
-
-.saas-card h3 {
-    margin: 0 0 6px 8px;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.saas-card p {
-    margin: 0 0 8px 8px;
-    font-size: 13px;
-    color: #a1a1aa;
-}
-
-.action-card {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    border: 1px dashed rgba(255, 255, 255, 0.15);
-    background: transparent;
-    text-align: center;
+    gap: 16px;
 }
 
-.action-card:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.action-circle {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-    color: #e4e4e7;
-}
+.feed-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.3);}
+.feed-art { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+.feed-info { display: flex; flex-direction: column; gap: 4px; }
+.feed-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
+.feed-info p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
 
 /* --- Reproductor Cápsula Premium --- */
 .saas-player-capsule {
     position: fixed;
-    bottom: 32px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    width: 800px;
+    width: 760px;
     max-width: 90vw;
     height: 80px;
-    background: rgba(15, 15, 15, 0.65);
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Mucho más transparente para que se funda con el fondo */
+    background: rgba(15, 15, 15, 0.25);
+    backdrop-filter: blur(64px) saturate(180%);
+    -webkit-backdrop-filter: blur(64px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 40px;
-    box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.05);
     z-index: 50;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 32px 0 12px;
+    padding: 0 24px 0 16px;
 }
 
-.player-track {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 30%;
-}
+.player-track { display: flex; align-items: center; gap: 16px; width: 30%; }
+.track-art { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #0f766e, #5eead4); box-shadow: 0 4px 12px rgba(0,0,0,0.5);}
+.track-meta h4 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: -0.2px;}
+.track-meta p { margin: 4px 0 0 0; font-size: 12px; color: rgba(255, 255, 255, 0.5); }
 
-.track-art {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #10b981, #0ea5e9);
-}
+.player-controls { display: flex; align-items: center; gap: 24px; }
+.icon-btn { background: transparent; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer; padding: 0; transition: color 0.2s, transform 0.2s; }
+.icon-btn:hover { color: white; transform: scale(1.1); }
+.play-btn { width: 44px; height: 44px; border-radius: 50%; background: white; color: black; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 16px rgba(255, 255, 255, 0.15);}
+.play-btn:hover { transform: scale(1.08); }
 
-.track-meta h4 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.track-meta p {
-    margin: 4px 0 0 0;
-    font-size: 13px;
-    color: #a1a1aa;
-}
-
-.player-controls {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.icon-btn {
-    background: transparent;
-    border: none;
-    color: #a1a1aa;
-    cursor: pointer;
-    display: flex;
-    padding: 0;
-    transition: color 0.2s;
-}
-
-.icon-btn:hover {
-    color: white;
-}
-
-.play-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: white;
-    color: black;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.play-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3);
-}
-
-.player-timeline {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 30%;
-    justify-content: flex-end;
-    font-size: 12px;
-    color: #71717a;
-    font-variant-numeric: tabular-nums;
-}
-
-.timeline-bar {
-    width: 100px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-}
-
-.timeline-progress {
-    width: 40%;
-    height: 100%;
-    background: white;
-    border-radius: 2px;
-}
+.player-timeline { display: flex; align-items: center; gap: 16px; width: 30%; justify-content: flex-end; font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.4); font-variant-numeric: tabular-nums; }
+.timeline-bar { width: 120px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; }
+/* Barra de progreso con tu color turquesa */
+.timeline-progress { width: 40%; height: 100%; background: #5eead4; border-radius: 2px; box-shadow: 0 0 10px rgba(94, 234, 212, 0.5); }
