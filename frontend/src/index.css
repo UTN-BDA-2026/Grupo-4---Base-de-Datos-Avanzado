@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-/* =========================================
-   ESTILOS GLOBALES Y LOGIN/REGISTRO
-   ========================================= */
+/* ESTILOS GLOBALES Y LOGIN/REGISTRO  */
 body {
     margin: 0;
     padding: 0;
@@ -38,16 +36,13 @@ body {
     flex-wrap: wrap; 
 }
 
-/* --- PANELES GLASSMORPHISM (Igual al Home) --- */
+/* --- PANELES GLASSMORPHISM --- */
 .info-panel, .form-panel {
     background: rgba(18, 18, 18, 0.35); 
     backdrop-filter: blur(48px);
     -webkit-backdrop-filter: blur(48px);
-    
-    /* 1. Solución al bug del halo borroso en los bordes */
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-    /* 2. Recorta el fondo estrictamente al borde redondeado */
     background-clip: padding-box;
 
     border: 1px solid rgba(255, 255, 255, 0.04);
@@ -62,13 +57,11 @@ body {
     box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
 }
 
-/* Panel izquierdo de Login con radial gradient integrado al Glass */
 .login-info-panel {
     background: radial-gradient(circle at top left, rgba(18, 67, 48, 0.5) 0%, rgba(18, 18, 18, 0.2) 60%);
     backdrop-filter: blur(48px);
     -webkit-backdrop-filter: blur(48px);
     
-    /* 1. Solución al bug del halo borroso en los bordes */
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
     background-clip: padding-box;
@@ -86,7 +79,6 @@ body {
     box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.6);
 }
 
-/* Panel izquierdo de Login con radial gradient integrado al Glass */
 .login-info-panel {
     background: radial-gradient(circle at top left, rgba(18, 67, 48, 0.5) 0%, rgba(18, 18, 18, 0.2) 60%);
     backdrop-filter: blur(48px);
@@ -174,9 +166,6 @@ body {
 .login-link span { color: #5eead4; font-weight: 600; margin-left: 5px; transition: opacity 0.2s; }
 .login-link span:hover { opacity: 0.8; }
 
-/* =========================================
-   DISEÑO SAAS PREMIUM (Atmósfera Cinematográfica & Glass)
-   ========================================= */
 
 .saas-container {
     width: 100vw;
@@ -189,25 +178,21 @@ body {
     background-color: #050505;
 }
 
-/* /* --- Fondo Inmersivo Cinematográfico --- */
 .app-background {
     position: absolute;
     inset: -5%; 
     width: 110vw;
     height: 110vh;
-    /* Aseguramos que cargue tu imagen correcta */
     background-image: url('./assets/background.png');
     background-size: cover;
     background-position: center;
     z-index: 0;
-    /* Reducimos un poco el blur inicial para que las formas y colores de la imagen "pasen" hacia los paneles */
     filter: blur(24px) saturate(130%); 
 }
 
 .glass-overlay {
     position: absolute;
     inset: 0;
-    /* Capa oscura mucho más transparente. Arriba deja pasar luz (40%) y oscurece abajo (85%) */
     background: linear-gradient(180deg, rgba(5, 5, 5, 0.4) 0%, rgba(5, 5, 5, 0.85) 100%);
     z-index: 1;
 }
@@ -226,11 +211,9 @@ body {
 
 /* --- Paneles Glassmorphism Premium --- */
 .saas-sidebar, .saas-main-panel {
-    /* Aquí está la magia: Redujimos la opacidad al 15% (0.15) para máxima transparencia */
     background: rgba(18, 18, 18, 0.3);
     backdrop-filter: blur(48px);
     -webkit-backdrop-filter: blur(48px);
-    /* Reflejos de luz sutiles en los bordes como un cristal de verdad */
     border: 1px solid rgba(255, 255, 255, 0.6);
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     border-left: 1px solid rgba(255, 255, 255, 0.08);
@@ -239,15 +222,13 @@ body {
 }
 
 /* --- Paneles Glassmorphism Premium --- */
-/* Esta regla unifica la apariencia de cristal ahumado para los paneles mayores */
 .saas-sidebar, .saas-main-panel {
     background: rgba(20, 20, 20, 0.25);
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
-    /* Borde superior sutil para simular el reflejo de la luz en el cristal */
     border: 1px solid rgba(255, 255, 255, 0.03);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 32px; /* Más redondeado y orgánico */
+    border-radius: 32px; 
     box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8);
 }
 
@@ -260,7 +241,6 @@ body {
     padding: 32px 0;
     transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: visible; 
-    /* Volvemos a relative para que sea parte de la estructura normal */
     position: relative; 
     z-index: 20;
 }
@@ -318,12 +298,11 @@ body {
 
 /* --- Main Panel Centrado --- */
 .saas-main-panel {
-    flex: 1; /* Vuelve a ocupar el espacio restante naturalmente */
+    flex: 1; 
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
-    /* Tu ajuste: 60% de opacidad para el panel principal */
     background: rgba(20, 20, 20, 0.6); 
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
@@ -334,7 +313,6 @@ body {
     transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Efecto cinematográfico: desenfoca el contenido cuando usas la barra lateral */
 .saas-sidebar:hover + .saas-main-panel {
     filter: blur(8px) brightness(0.7); 
     pointer-events: none; 
@@ -379,7 +357,7 @@ body {
     background: linear-gradient(135deg, #124330, #5eead4); 
     color: #000; border-radius: 14px; 
     display: flex; justify-content: center; align-items: center; 
-    box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2); /* Resplandor del logo */
+    box-shadow: 0 8px 16px rgba(94, 234, 212, 0.2);
 }
 .saas-brand .sidebar-text { font-weight: 800; font-size: 16px; letter-spacing: -0.5px;}
 
@@ -391,8 +369,6 @@ body {
     background: transparent; border: none; cursor: pointer; width: 100%; box-sizing: border-box; 
 }
 .saas-nav a svg, .saas-nav-btn svg { min-width: 20px; }
-
-/* El estado hover es súper sutil, no un bloque gris feo */
 .saas-nav a:hover, .saas-nav-btn:hover { color: #ffffff; }
 .saas-nav a.active { 
     background: rgba(255, 255, 255, 0.06); 
@@ -487,8 +463,6 @@ body {
 /* Textos */
 .saas-title { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; margin: 0 0 32px 0; }
 .saas-subtitle { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; margin: 56px 0 24px 0; }
-
-/* Grid Hero (Tarjetas de Color Puro) */
 .saas-hero-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -502,7 +476,6 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    /* Sombras que toman el color del fondo para dar brillo (Glow) */
     box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6);
     cursor: pointer;
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
@@ -511,7 +484,6 @@ body {
     overflow: hidden;
 }
 
-/* Sutil oscurecimiento inferior para que el texto resalte siempre */
 .hero-card::before {
     content: ''; position: absolute; inset: 0;
     background: linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%);
@@ -525,13 +497,10 @@ body {
 
 .hero-card h3 { position: relative; z-index: 2; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; text-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 .hero-card p { position: relative; z-index: 2; margin: 0; font-size: 15px; color: rgba(255,255,255,0.9); font-weight: 500; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-
-/* Gradientes vivos y modernos (igual a tu referencia) */
 .card-teal { background: linear-gradient(145deg, #2dd4bf, #0f766e); }
 .card-purple { background: linear-gradient(145deg, #c026d3, #7e22ce); }
 .card-orange { background: linear-gradient(145deg, #fbbf24, #ea580c); }
 
-/* Grid Compacta (Continuar escuchando) */
 .compact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -556,7 +525,6 @@ body {
 .feed-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .feed-info p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
 
-/* --- Reproductor Cápsula Premium --- */
 .saas-player-capsule {
     position: fixed;
     bottom: 40px;
@@ -565,7 +533,6 @@ body {
     width: 760px;
     max-width: 90vw;
     height: 80px;
-    /* Mucho más transparente para que se funda con el fondo */
     background: rgba(15, 15, 15, 0.25);
     backdrop-filter: blur(64px) saturate(180%);
     -webkit-backdrop-filter: blur(64px) saturate(180%);
@@ -593,5 +560,254 @@ body {
 
 .player-timeline { display: flex; align-items: center; gap: 16px; width: 30%; justify-content: flex-end; font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.4); font-variant-numeric: tabular-nums; }
 .timeline-bar { width: 120px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; }
-/* Barra de progreso con tu color turquesa */
 .timeline-progress { width: 40%; height: 100%; background: #5eead4; border-radius: 2px; box-shadow: 0 0 10px rgba(94, 234, 212, 0.5); }
+
+/* =========================================
+   DISEÑO SAAS PREMIUM - VISTA PERFIL
+   ========================================= */
+
+/* Hero del Perfil */
+.profile-hero {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    margin-top: 24px;
+    margin-bottom: 48px;
+}
+
+.profile-avatar-large {
+    width: 192px;
+    height: 192px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #124330, #5eead4);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 72px;
+    font-weight: 800;
+    color: #000;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.profile-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5eead4;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -2.5px;
+    line-height: 1;
+    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.profile-stats {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.profile-stats strong {
+    color: #ffffff;
+}
+
+/* Pestañas (Tabs) */
+.profile-tabs {
+    display: flex;
+    gap: 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 48px;
+}
+
+.profile-tab {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 0 0 16px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+
+.profile-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-tab.active {
+    color: #ffffff;
+}
+
+.profile-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #5eead4;
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 -2px 8px rgba(94, 234, 212, 0.4);
+}
+
+/* Secciones Generales */
+.profile-section {
+    margin-bottom: 64px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.see-all-link {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.see-all-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* Grilla de Artistas (Circulares) */
+.artists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 24px;
+}
+
+.artist-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+}
+
+.artist-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-8px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.artist-art {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.artist-card h4 {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.artist-card p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Lista de Canciones */
+.tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 16px;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.track-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.track-number {
+    width: 32px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 500;
+    text-align: center;
+}
+
+.track-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.track-details {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.track-details h4 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.track-details p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.track-album {
+    flex: 2;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.track-plays {
+    flex: 1;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: right;
+    padding-right: 24px;
+}
+
+.track-time {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    font-variant-numeric: tabular-nums;
+}

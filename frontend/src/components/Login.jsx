@@ -15,11 +15,11 @@ const Login = () => {
 
     return (
         <div className="saas-container">
-            {/* Reutilizamos el fondo inmersivo del Home */}
+            {}
             <div className="app-background"></div>
             <div className="glass-overlay"></div>
 
-            {/* Espacio centrado para el formulario */}
+            {}
             <div className="auth-workspace">
                 <div className="register-wrapper">
                     
