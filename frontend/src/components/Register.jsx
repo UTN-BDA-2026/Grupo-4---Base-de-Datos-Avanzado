@@ -23,13 +23,20 @@ const Register = () => {
                 <h2>Crear cuenta</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
-                        <label>Nombre visible</label>
+                        <label>Nombre de Usuario</label>
                         <input type="text" name="username" className="custom-input" onChange={handleChange} required />
                     </div>
                     <div className="input-group">
                         <label>Email</label>
                         <input type="email" name="email" className="custom-input" onChange={handleChange} required />
                     </div>
+                    
+                    {/* Aquí agregamos el campo de la contraseña */}
+                    <div className="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" name="password" className="custom-input" onChange={handleChange} required />
+                    </div>
+
                     <button type="submit" className="submit-btn">Registrarme →</button>
                     <div className="login-link">
                         ¿Ya tienes cuenta? <Link to="/login"><span>Ir a login</span></Link>

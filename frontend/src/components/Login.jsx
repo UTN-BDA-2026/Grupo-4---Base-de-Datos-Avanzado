@@ -1,15 +1,19 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // 1. Importamos useNavigate
 import '../index.css';
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
+    const navigate = useNavigate(); // 2. Inicializamos el navegador interno
 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Login con:', formData);
+        
+        // 3. Simulamos un login exitoso y redirigimos al home
+        navigate('/home'); 
     };
 
     return (
