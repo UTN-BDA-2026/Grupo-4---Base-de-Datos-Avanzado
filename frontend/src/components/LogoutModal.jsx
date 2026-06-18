@@ -17,7 +17,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
                 <p className="modal-text">Tendrás que volver a ingresar tus credenciales la próxima vez que quieras acceder a Identidad Sonora.</p>
                 <div className="modal-actions">
                     <button className="btn-glass" onClick={onClose}>Cancelar</button>
-                    {/* Al confirmar, ejecuta la función que lo envía al login */}
+                    {}
                     <button className="btn-danger-fill" onClick={onConfirm}>Salir</button>
                 </div>
             </div>
