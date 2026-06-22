@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import Playlists from './pages/Playlists';
 import PlaylistDetail from './pages/PlaylistDetail';
+import Search from './pages/Search';
 
 function App() {
   return (
@@ -35,6 +36,10 @@ function App() {
           {}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/login" />} />
+
+          <Route path="/buscar" element={
+            <ProtectedRoute><Search /></ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>
