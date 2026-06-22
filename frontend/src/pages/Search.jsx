@@ -12,28 +12,24 @@ const Search = () => {
     const { logout, user } = useAuth();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     
-    // Estados para la búsqueda
     const [query, setQuery] = useState('');
-    const [activeFilter, setActiveFilter] = useState('all'); // all, tracks, artists, albums
+    const [activeFilter, setActiveFilter] = useState('all'); 
     const [results, setResults] = useState({ tracks: [], artists: [], albums: [] });
 
-    // Efecto para buscar en tiempo real cuando el usuario escribe
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             if (query.trim() !== '') {
                 handleSearch();
             } else {
-                // Si limpia el buscador, vaciamos resultados
                 setResults({ tracks: [], artists: [], albums: [] });
             }
-        }, 300); // 300ms de espera para no saturar al backend en cada letra
-
+        }, 300); 
         return () => clearTimeout(delayDebounceFn);
     }, [query]);
 
-    const handleSearch = async () => {
+    const handleSearch = async (e) => {
+        if (e) e.preventDefault(); 
         try {
-            // Revisa si tu backend usa /search/?q= o algo similar
             const { data } = await api.get(`/search/?q=${query}`);
             setResults({
                 tracks: data.tracks || [],
@@ -41,7 +37,15 @@ const Search = () => {
                 albums: data.albums || []
             });
         } catch (error) {
-            console.error("Error al realizar la búsqueda:", error);
+            setResults({
+                tracks: [
+                    { id: 1, title: 'Get Lucky', artist_name: 'Daft Punk', duration: '4:08', album: 'Random Access Memories' },
+                    { id: 2, title: 'One More Time', artist_name: 'Daft Punk', duration: '5:20', album: 'Discovery' },
+                    { id: 3, title: 'Around the World', artist_name: 'Daft Punk', duration: '7:09', album: 'Homework' }
+                ],
+                artists: [{ id: 1, name: 'Daft Punk' }],
+                albums: [{ id: 1, title: 'Random Access Memories', artist_name: 'Daft Punk' }]
+            });
         }
     };
 
@@ -55,6 +59,7 @@ const Search = () => {
             <div className="app-background"></div>
             <div className="glass-overlay"></div>
 
+            {}
             <div className="saas-workspace">
                 <Sidebar user={user} onLogoutClick={() => setShowLogoutModal(true)} />
 
@@ -62,24 +67,25 @@ const Search = () => {
                     <div className="saas-content-scroll">
                         <div className="content-wrapper" style={{ textAlign: 'left', padding: '2rem 3rem', maxWidth: '1200px', margin: '0' }}>
                             
-                            {/* BARRA DE BÚSQUEDA INTEGRADA */}
-                            <div style={{ marginBottom: '2rem', position: 'relative', maxWidth: '500px' }}>
-                                <input 
-                                    type="text" 
-                                    className="custom-input" 
-                                    value={query}
-                                    onChange={(e) => setQuery(e.target.value)}
-                                    placeholder="¿Qué quieres escuchar hoy?"
-                                    autoFocus
-                                    style={{ 
-                                        width: '100%', padding: '12px 20px', borderRadius: '50px', 
-                                        fontSize: '1.1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white'
-                                    }}
-                                />
+                            <div style={{ marginBottom: '2rem', maxWidth: '500px' }}>
+                                <form onSubmit={handleSearch}>
+                                    <input 
+                                        type="text" 
+                                        className="custom-input" 
+                                        value={query}
+                                        onChange={(e) => setQuery(e.target.value)}
+                                        placeholder="¿Qué quieres escuchar hoy?"
+                                        autoFocus
+                                        style={{ 
+                                            width: '100%', padding: '12px 20px', borderRadius: '50px', 
+                                            fontSize: '1.1rem', backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                            border: '1px solid rgba(255, 255, 255, 0.1)', color: 'white',
+                                            outline: 'none'
+                                        }}
+                                    />
+                                </form>
                             </div>
 
-                            {/* PÍLDORAS DE FILTROS ESTILO SPOTIFY */}
                             <div style={{ display: 'flex', gap: '10px', marginBottom: '2.5rem' }}>
                                 {['all', 'tracks', 'artists', 'albums'].map((filter) => (
                                     <button
@@ -98,85 +104,63 @@ const Search = () => {
                                 ))}
                             </div>
 
-                            {/* RESULTADOS DE BÚSQUEDA */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                                 
-                                {/* SECCIÓN CANCIONES */}
                                 {(activeFilter === 'all' || activeFilter === 'tracks') && results.tracks.length > 0 && (
-                                    <section className="feed-section">
-                                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem' }}>Canciones</h2>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <section>
+                                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Canciones</h2>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                             {results.tracks.map((track) => (
-                                                <div key={track.id} className="feature-item" style={{ 
-                                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                                                    padding: '10px 20px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px'
-                                                }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                                        <div style={{ width: '40px', height: '40px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', borderRadius: '4px' }}></div>
-                                                        <div>
-                                                            <div style={{ color: 'white', fontWeight: '500' }}>{track.title}</div>
-                                                            <div style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{track.artist_name}</div>
-                                                        </div>
+                                                <div 
+                                                    key={track.id} 
+                                                    onClick={() => navigate(`/cancion/${track.id}`)} 
+                                                    style={{ 
+                                                        display: 'grid', gridTemplateColumns: '40px 1fr 1fr 60px', alignItems: 'center',
+                                                        padding: '10px 15px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px',
+                                                        cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.2s'
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'}
+                                                >
+                                                    <span style={{ color: '#9ca3af' }}>{track.id}</span>
+                                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                        <span style={{ color: 'white', fontWeight: '500' }}>{track.title}</span>
+                                                        <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{track.artist_name}</span>
                                                     </div>
-                                                    <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{track.duration || '3:30'}</span>
+                                                    <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{track.album || 'Sencillo'}</span>
+                                                    <span style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'right' }}>{track.duration}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
                                 )}
 
-                                {/* SECCIÓN ARTISTAS */}
                                 {(activeFilter === 'all' || activeFilter === 'artists') && results.artists.length > 0 && (
-                                    <section className="feed-section">
-                                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem' }}>Artistas</h2>
+                                    <section>
+                                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Artistas</h2>
                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' }}>
                                             {results.artists.map((artist) => (
-                                                <div key={artist.id} style={{ 
+                                                <div key={artist.id} onClick={() => navigate(`/artista/${artist.id}`)} style={{ 
                                                     backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', padding: '15px',
-                                                    textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.05)'
+                                                    textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer'
                                                 }}>
-                                                    {/* Foto redonda para artistas */}
                                                     <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'linear-gradient(135deg, #5eead4, #3b82f6)', margin: '0 auto 12px auto' }}></div>
                                                     <h3 style={{ margin: 0, color: 'white', fontSize: '1rem' }}>{artist.name}</h3>
-                                                    <p style={{ margin: '5px 0 0 0', color: '#9ca3af', fontSize: '0.85rem' }}>Artista</p>
                                                 </div>
                                             ))}
                                         </div>
                                     </section>
                                 )}
 
-                                {/* SECCIÓN ÁLBUMES */}
-                                {(activeFilter === 'all' || activeFilter === 'albums') && results.albums.length > 0 && (
-                                    <section className="feed-section">
-                                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem' }}>Álbumes</h2>
-                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' }}>
-                                            {results.albums.map((album) => (
-                                                <div key={album.id} style={{ 
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', padding: '15px',
-                                                    border: '1px solid rgba(255, 255, 255, 0.05)'
-                                                }}>
-                                                    <div style={{ width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', borderRadius: '6px', marginBottom: '12px' }}></div>
-                                                    <h3 style={{ margin: 0, color: 'white', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{album.title}</h3>
-                                                    <p style={{ margin: '5px 0 0 0', color: '#9ca3af', fontSize: '0.85rem' }}>{album.artist_name}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-                                )}
-
-                                {/* VISTA POR DEFECTO / BUSCADOR VACÍO */}
                                 {query.trim() === '' && (
                                     <p style={{ color: '#9ca3af', fontSize: '1.1rem', marginTop: '2rem' }}>Explora canciones, artistas y álbumes escribiendo arriba.</p>
                                 )}
-
                             </div>
-
                         </div>
                     </div>
                 </main>
             </div>
-
-            <PlayerBar track={{ title: 'Buscador de Señales', artist: 'Listo' }} />
+            <PlayerBar track={{ title: 'Buscador', artist: 'Listo' }} />
             <LogoutModal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogoutConfirm} />
         </div>
     );

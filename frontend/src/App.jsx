@@ -8,6 +8,8 @@ import Profile from './pages/Profile';
 import Playlists from './pages/Playlists';
 import PlaylistDetail from './pages/PlaylistDetail';
 import Search from './pages/Search';
+import TrackDetail from './pages/TrackDetail';
+import ArtistDetail from './pages/ArtistDetail';
 
 function App() {
   return (
@@ -40,6 +42,14 @@ function App() {
           <Route path="/buscar" element={
             <ProtectedRoute><Search /></ProtectedRoute>
           } />
+          <Route path="/cancion/:id" element={
+            <ProtectedRoute><TrackDetail /></ProtectedRoute>
+          } />
+
+          <Route path="/artista/:id" element={
+            <ProtectedRoute><ArtistDetail /></ProtectedRoute>
+          } />
+
         </Routes>
       </Router>
     </AuthProvider>
