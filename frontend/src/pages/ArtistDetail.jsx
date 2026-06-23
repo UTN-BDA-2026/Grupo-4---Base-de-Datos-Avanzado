@@ -1,51 +1,78 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useArtistDetail } from '../hooks/useArtistDetail';
 import Sidebar from '../components/Sidebar';
+import AlbumCard from '../components/AlbumCard';
 import PlayerBar from '../components/PlayerBar';
-import api from '../services/api';
 import '../index.css';
 
+const formatFollowers = (count) => {
+    if (!count) return '0 seguidores';
+    if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M seguidores`;
+    if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K seguidores`;
+    return `${count} seguidores`;
+};
+
+const formatDuration = (ms) => {
+    if (!ms) return '0:00';
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
 const ArtistDetail = () => {
-    const { id } = useParams();
+    const { deezerId } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    
-    const [artistData, setArtistData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const {
+        artist,
+        songs,
+        albums,
+        albumsLoading,
+        albumTab,
+        setAlbumTab,
+        loading,
+        error,
+    } = useArtistDetail(deezerId);
 
-    useEffect(() => {
-        const fetchArtistDetail = async () => {
-            try {
-                const { data } = await api.get(`/artists/${id}/`); 
-                setArtistData(data);
-            } catch (error) {
-                setArtistData({
-                    id: id,
-                    name: 'The Weeknd',
-                    followers: '108,453,211',
-                    verified: true,
-                    topTracks: [
-                        { id: 101, title: 'Blinding Lights', album: 'After Hours', duration: '3:20' },
-                        { id: 102, title: 'Starboy', album: 'Starboy', duration: '3:50' },
-                        { id: 103, title: 'Save Your Tears', album: 'After Hours', duration: '3:35' },
-                        { id: 104, title: 'Die For You', album: 'Starboy', duration: '4:20' }
-                    ],
-                    albums: [
-                        { id: 201, title: 'Dawn FM', year: '2022' },
-                        { id: 202, title: 'After Hours', year: '2020' },
-                        { id: 203, title: 'Starboy', year: '2016' }
-                    ]
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
+    if (loading) {
+        return (
+            <div className="saas-container">
+                <div className="app-background"></div>
+                <div className="glass-overlay"></div>
+                <div className="saas-workspace">
+                    <Sidebar user={user} />
+                    <main className="saas-main-panel">
+                        <div className="saas-content-scroll">
+                            <p>Cargando artista...</p>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
-        fetchArtistDetail();
-    }, [id]);
+    if (error || !artist) {
+        return (
+            <div className="saas-container">
+                <div className="app-background"></div>
+                <div className="glass-overlay"></div>
+                <div className="saas-workspace">
+                    <Sidebar user={user} />
+                    <main className="saas-main-panel">
+                        <div className="saas-content-scroll">
+                            <p>No se pudo cargar el artista.</p>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
-    if (loading) return <div className="saas-container" style={{ backgroundColor: '#050505' }}></div>;
+    const currentTrack = songs[0]
+        ? { title: songs[0].title, artist: songs[0].artist?.name }
+        : { title: 'Sin reproducción', artist: '—' };
 
     return (
         <div className="saas-container">
@@ -57,88 +84,116 @@ const ArtistDetail = () => {
 
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
-                        <div className="content-wrapper" style={{ textAlign: 'left', padding: '2rem 3rem', maxWidth: '1200px', margin: '0' }}>
-                            
-                            <button 
-                                onClick={() => navigate(-1)} 
-                                style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '1rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '5px' }}
-                            >
-                                ← Volver
-                            </button>
+                        <div className="content-wrapper">
 
-                            <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap' }}>
-                                <div style={{ 
-                                    width: '200px', height: '200px', 
-                                    background: 'linear-gradient(135deg, #111, #333)', 
-                                    borderRadius: '50%', boxShadow: '0 15px 35px rgba(0,0,0,0.5)',
-                                    border: '2px solid rgba(255,255,255,0.1)'
-                                }}></div>
-
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                    {artistData?.verified && (
-                                        <span style={{ color: '#5eead4', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                            Artista Verificado
-                                        </span>
-                                    )}
-                                    <h1 style={{ color: 'white', fontSize: '5rem', margin: '0', fontWeight: '900', lineHeight: '1', letterSpacing: '-2px' }}>
-                                        {artistData?.name}
-                                    </h1>
-                                    <span style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '10px' }}>
-                                        <strong style={{ color: 'white' }}>{artistData?.followers}</strong> seguidores mensuales
-                                    </span>
+                            <div className="profile-hero">
+                                <div className="profile-hero-left">
+                                    <div
+                                        className="profile-avatar-large"
+                                        style={artist.image_url ? {
+                                            backgroundImage: `url(${artist.image_url})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                        } : undefined}
+                                    >
+                                        {!artist.image_url && artist.name?.charAt(0)}
+                                    </div>
+                                    <div className="profile-info">
+                                        <span className="profile-label">Artista</span>
+                                        <h1 className="profile-name">{artist.name}</h1>
+                                        <div className="profile-badges">
+                                            <span className="badge-dark">{formatFollowers(artist.followers)}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <section style={{ marginBottom: '3rem' }}>
-                                <h2 className="saas-subtitle" style={{ marginBottom: '1.5rem', color: 'white', fontSize: '1.5rem' }}>Top Canciones</h2>
-                                <div style={{ backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '10px' }}>
-                                    {artistData?.topTracks?.map((track, index) => (
-                                        <div 
-                                            key={track.id} 
-                                            onClick={() => navigate(`/cancion/${track.id}`)} 
-                                            style={{ 
-                                                display: 'grid', gridTemplateColumns: '40px 1fr 1fr 60px', alignItems: 'center',
-                                                padding: '12px 15px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                        >
-                                            <span style={{ color: '#9ca3af' }}>{index + 1}</span>
-                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                                <span style={{ color: 'white', fontWeight: '500' }}>{track.title}</span>
-                                                <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{artistData.name}</span>
+                            {songs.length > 0 && (
+                                <section className="profile-section">
+                                    <div className="section-header">
+                                        <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones populares</h2>
+                                    </div>
+                                    <div className="tracks-list">
+                                        {songs.slice(0, 10).map((song, index) => (
+                                            <div
+                                                className="track-item"
+                                                key={song.deezer_id}
+                                                onClick={() => {/* reproducir */}}
+                                            >
+                                                <span className="track-number">{index + 1}</span>
+                                                <div
+                                                    className="track-thumb"
+                                                    style={song.album?.cover_url ? {
+                                                        backgroundImage: `url(${song.album.cover_url})`,
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center',
+                                                    } : undefined}
+                                                ></div>
+                                                <div className="track-details">
+                                                    <h4>{song.title}</h4>
+                                                </div>
+                                                <span className="track-time">{formatDuration(song.duration_ms)}</span>
                                             </div>
-                                            <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{track.album}</span>
-                                            <span style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'right' }}>{track.duration}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
 
-                            <section>
-                                <h2 className="saas-subtitle" style={{ marginBottom: '1.5rem', color: 'white', fontSize: '1.5rem' }}>Discografía</h2>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
-                                    {artistData?.albums?.map((album) => (
-                                        <div key={album.id} style={{ 
-                                            backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '12px', padding: '15px',
-                                            cursor: 'pointer', border: '1px solid rgba(255, 255, 255, 0.05)', transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
-                                        >
-                                            <div style={{ width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #8b5cf6, #ec4899)', borderRadius: '8px', marginBottom: '12px' }}></div>
-                                            <h3 style={{ margin: 0, color: 'white', fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{album.title}</h3>
-                                            <p style={{ margin: '5px 0 0 0', color: '#9ca3af', fontSize: '0.85rem' }}>{album.year} • Álbum</p>
-                                        </div>
-                                    ))}
+                            <section className="profile-section">
+                                <div className="section-header">
+                                    <h2 className="saas-subtitle" style={{ margin: 0 }}>Discografía</h2>
                                 </div>
+
+                                <div className="profile-tabs">
+                                    <button
+                                        className={`profile-tab ${albumTab === 'popular' ? 'active' : ''}`}
+                                        onClick={() => setAlbumTab('popular')}
+                                    >
+                                        Lanzamientos populares
+                                    </button>
+                                    <button
+                                        className={`profile-tab ${albumTab === 'album' ? 'active' : ''}`}
+                                        onClick={() => setAlbumTab('album')}
+                                    >
+                                        Álbumes
+                                    </button>
+                                    <button
+                                        className={`profile-tab ${albumTab === 'singles' ? 'active' : ''}`}
+                                        onClick={() => setAlbumTab('singles')}
+                                    >
+                                        Sencillos y EPs
+                                    </button>
+                                </div>
+
+                                {albumsLoading && <p>Cargando...</p>}
+
+                                {albumsLoading && <p>Cargando lanzamientos...</p>}
+                                {!albumsLoading && albums.length === 0 && (
+                                    <p style={{ color: 'rgba(255,255,255,0.5)' }}>No hay lanzamientos en esta categoría.</p>
+                                )}
+
+                                {!albumsLoading && albums.length > 0 && (
+                                    <div className="compact-grid">
+                                        {albums.map((album) => (
+                                            <AlbumCard
+                                                key={album.deezer_id}
+                                                title={album.name}
+                                                artist={artist.name}
+                                                cover={album.cover_url}
+                                                albumType={album.album_type}
+                                                onClick={() => navigate(`/album/${album.deezer_id}`)}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
                             </section>
 
                         </div>
                     </div>
                 </main>
             </div>
-            <PlayerBar track={{ title: artistData?.topTracks?.[0]?.title || '', artist: artistData?.name || '' }} />
+
+            <PlayerBar track={currentTrack} />
         </div>
     );
 };

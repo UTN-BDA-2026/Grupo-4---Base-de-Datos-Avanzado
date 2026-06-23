@@ -94,9 +94,18 @@ def artist_songs(request, deezer_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def artist_albums(request, deezer_id):
-    albums = get_albums_by_artist(deezer_id)
-    return Response(AlbumSerializer(albums, many=True).data)
-
+    record_type = request.query_params.get('type', 'album')
+    
+    albums = get_albums_by_artist(deezer_id, record_type=record_type)
+    
+    if not albums:
+        return Response({
+            'message': f"El artista actualmente no cuenta con lanzamientos del tipo '{record_type}'.",
+            'results': []
+        }, status=status.HTTP_200_OK)
+    
+    serializer = AlbumSerializer(albums, many=True)
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -127,6 +136,6 @@ def top_artists(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def top_albums(request):
-    limit = int(request.query_params.get('limit', 10))
+    limit = int(request.query_params.get('limit', 20))
     albums = get_top_albums(limit=limit)
     return Response(TopAlbumSerializer(albums, many=True).data)

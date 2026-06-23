@@ -10,6 +10,7 @@ import PlaylistDetail from './pages/PlaylistDetail';
 import Search from './pages/Search';
 import TrackDetail from './pages/TrackDetail';
 import ArtistDetail from './pages/ArtistDetail';
+import AlbumDetail from './pages/AlbumDetail';
 
 function App() {
   return (
@@ -19,37 +20,18 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registro" element={<Register />} />
 
-          <Route path="/home" element={
-            <ProtectedRoute><Home /></ProtectedRoute>
-          } />
-          
-          <Route path="/perfil" element={
-            <ProtectedRoute><Profile /></ProtectedRoute>
-          } />
+          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/playlists" element={<ProtectedRoute><Playlists /></ProtectedRoute>} />
+          <Route path="/playlists/:id" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+          <Route path="/buscar" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+          <Route path="/cancion/:id" element={<ProtectedRoute><TrackDetail /></ProtectedRoute>} />
 
-          {}
-          <Route path="/playlists" element={
-            <ProtectedRoute><Playlists /></ProtectedRoute>
-          } />
-          <Route path="/playlists/:id" element={
-            <ProtectedRoute><PlaylistDetail /></ProtectedRoute>
-          } />
+          <Route path="/artist/:deezerId" element={<ProtectedRoute><ArtistDetail /></ProtectedRoute>} />
+          <Route path="/album/:deezerId" element={<ProtectedRoute><AlbumDetail /></ProtectedRoute>} />
 
-          {}
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="*" element={<Navigate to="/login" />} />
-
-          <Route path="/buscar" element={
-            <ProtectedRoute><Search /></ProtectedRoute>
-          } />
-          <Route path="/cancion/:id" element={
-            <ProtectedRoute><TrackDetail /></ProtectedRoute>
-          } />
-
-          <Route path="/artista/:id" element={
-            <ProtectedRoute><ArtistDetail /></ProtectedRoute>
-          } />
-
         </Routes>
       </Router>
     </AuthProvider>

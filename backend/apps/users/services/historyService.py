@@ -26,7 +26,7 @@ def get_listening_history(user, limit: int = 20) -> list:
     )
 
 
-def get_recently_played(user, limit: int = 10) -> list:
+def get_recently_played(user, limit: int = 20) -> list:
     history = (
         ListeningHistory.objects
         .select_related('song__artist', 'song__album')

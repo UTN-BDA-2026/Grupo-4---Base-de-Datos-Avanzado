@@ -18,11 +18,9 @@ const Login = () => {
         setErrorMsg('');
 
         try {
-            // Usamos tu AuthContext en lugar de hacer fetch manual
             await login(formData.email, formData.password);
             
-            // Si las credenciales son correctas, pasamos a la biblioteca
-            navigate('/playlists'); 
+            navigate('/home'); 
         } catch (error) {
             setErrorMsg('Credenciales incorrectas o error de conexión.');
         }

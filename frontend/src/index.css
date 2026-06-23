@@ -520,7 +520,7 @@ body {
 }
 
 .feed-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.3);}
-.feed-art { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+.feed-art { width: 64px; height: 64px; border-radius: 16px; background: rgba(255,255,255,0.05); background-size: cover; background-position: center; flex-shrink: 0; }
 .feed-info { display: flex; flex-direction: column; gap: 4px; }
 .feed-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
 .feed-info p { margin: 0; font-size: 13px; color: rgba(255,255,255,0.5); }
@@ -745,6 +745,8 @@ body {
     height: 120px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.05);
+    background-size: cover;
+    background-position: center;
     margin-bottom: 16px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
@@ -798,6 +800,14 @@ body {
     flex-shrink: 0;
 }
 
+.album-type-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .track-details {
     flex: 2;
     display: flex;
@@ -835,6 +845,23 @@ body {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.4);
     font-variant-numeric: tabular-nums;
+}
+
+/* Estilos para los botones de las pestañas de filtro */
+.tab-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* =========================================

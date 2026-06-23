@@ -101,6 +101,6 @@ def listening_history(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recently_played(request):
-    limit = int(request.query_params.get('limit', 10))
+    limit = int(request.query_params.get('limit', 20))
     songs = get_recently_played(request.user, limit=limit)
     return Response(SongSerializer(songs, many=True).data)

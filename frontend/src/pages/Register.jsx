@@ -21,7 +21,7 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await register(formData); // 👈 se pasa el objeto completo, no campos sueltos
+            await register(formData); 
             navigate('/home');
         } catch (err) {
             const errors = err.response?.data;

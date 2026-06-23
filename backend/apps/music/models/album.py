@@ -8,6 +8,7 @@ class Album(models.Model):
     release_date = models.CharField(max_length=20)
     album_type   = models.CharField(max_length=50) 
     total_tracks = models.IntegerField(default=0)
+    popularity   = models.IntegerField(default=0)
     
     artist = models.ForeignKey(
         Artist, 
