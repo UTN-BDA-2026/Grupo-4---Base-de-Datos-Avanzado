@@ -1,4 +1,4 @@
-from scripts.utils import DB_CONFIG, BACKUP_DIR, get_mysql_command, logger
+from scripts.utils import DB_CONFIG, BACKUP_DIR, get_mysql_command, logger, ENVIRONMENT
 import subprocess
 import os
 
@@ -60,6 +60,14 @@ def restore_backup(backup_file):
         print(result.stderr)
         logger.error(result.stderr)
 
+def confirm_restore(file_name):
+    print("\n⚠ ATENCIÓN")
+    print("Este proceso sobrescribirá la base de datos actual.")
+    print(f"Backup seleccionado: {file_name}\n")
+
+    confirm = input("¿Continuar? (s/N): ").strip().lower()
+
+    return confirm == "s"
 
 def main():
     backups = list_backups()
@@ -68,7 +76,17 @@ def main():
         print("No hay backups disponibles.")
         return
 
+    if ENVIRONMENT == "production":
+        print("❌ Restore deshabilitado en producción.")
+        logger.warning("Intento de restore en producción bloqueado")
+        return
+
     selected = choose_backup(backups)
+
+    if not confirm_restore(selected.name):
+        print("Restore cancelado.")
+        return
+
     restore_backup(selected)
 
 
