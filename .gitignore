@@ -31,7 +31,7 @@ backend/.env.local
 backend/logs/*
 !backend/logs/.gitkeep
 
-backups/*.sql
+backend/backups/*.sql
 
 # =========================================================================
 # FRONTEND (React + Vite + Node)
