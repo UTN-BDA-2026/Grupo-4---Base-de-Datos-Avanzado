@@ -8,6 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
 
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
 DB_CONFIG = {
     "name": os.getenv("DB_NAME"),
     "user": os.getenv("DB_USER"),
@@ -21,8 +23,8 @@ MYSQL_BIN = os.getenv("MYSQL_BIN")
 BACKUP_DIR = BASE_DIR / "backups"
 LOG_DIR = BASE_DIR / "logs"
 
-BACKUP_DIR.mkdir(exist_ok=True)
-LOG_DIR.mkdir(exist_ok=True)
+BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_mysql_command(command_name: str) -> str:

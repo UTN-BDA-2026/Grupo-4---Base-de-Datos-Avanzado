@@ -12,8 +12,8 @@ def create_backup():
     env = os.environ.copy()
     env["MYSQL_PWD"] = DB_CONFIG["password"]
 
-    start_time = time.perf_counter()
     mysqldump = get_mysql_command("mysqldump")
+    start_time = time.perf_counter()
 
     command = [
         mysqldump,
@@ -25,9 +25,7 @@ def create_backup():
 
     print("Generando backup...")
 
-    start_time = time.perf_counter()
-
-    with open(backup_file, "w", encoding="utf-8") as output:
+    with open(backup_file, "w", encoding="utf-8", errors="ignore") as output:
         result = subprocess.run(
             command,
             stdout=output,
