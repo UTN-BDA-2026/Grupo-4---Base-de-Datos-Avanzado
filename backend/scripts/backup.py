@@ -1,4 +1,5 @@
-from scripts.utils import DB_CONFIG, BACKUP_DIR, get_mysql_command, logger
+from scripts.utils import DB_CONFIG, BACKUP_DIR, get_mysql_command
+from scripts.utils import logger
 from datetime import datetime
 import subprocess
 import os
