@@ -3,6 +3,8 @@ import argparse
 from scripts.backup import create_backup
 from scripts.restore import main as restore_main
 
+# python -m scripts.cli backup
+# python -m scripts.cli restore
 
 def main():
     parser = argparse.ArgumentParser(
