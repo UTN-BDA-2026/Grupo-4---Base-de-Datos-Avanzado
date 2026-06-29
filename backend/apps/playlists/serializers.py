@@ -3,6 +3,26 @@ from django.db.models import Sum
 from .models import Playlist, PlaylistSong
 from apps.music.serializers import SongSerializer
 
+class PlaylistSearchSerializer(serializers.ModelSerializer):
+    owner       = serializers.CharField(source='user.username', read_only=True)
+    total_songs = serializers.SerializerMethodField()
+    cover_url   = serializers.SerializerMethodField()
+
+    class Meta:
+        model  = Playlist
+        fields = ['id', 'name', 'description', 'cover_url', 'is_public', 'owner', 'total_songs']
+
+    def get_cover_url(self, obj):
+        if obj.cover_url:
+            return obj.cover_url
+        primera_relacion = obj.playlistsong_set.order_by('position').first()
+        if primera_relacion and primera_relacion.song and primera_relacion.song.album:
+            return primera_relacion.song.album.cover_url or None
+        return None
+
+    def get_total_songs(self, obj):
+        return obj.playlistsong_set.count()
+
 class PlaylistSongSerializer(serializers.ModelSerializer):
     song = SongSerializer(read_only=True)
 

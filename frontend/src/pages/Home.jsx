@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useHomeData } from '../hooks/useHomeData';
 import Sidebar from '../components/Sidebar';
-import SearchBar from '../components/SearchBar';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import ArtistCard from '../components/ArtistCard';
 import AlbumCard from '../components/AlbumCard';
@@ -41,7 +40,7 @@ const Home = () => {
     const viewAllBtnStyle = {
         background: 'none',
         border: 'none',
-        color: '#1db954',
+        color: '#5eead4',
         cursor: 'pointer',
         fontWeight: 'bold',
         fontSize: '0.9rem'
@@ -61,12 +60,6 @@ const Home = () => {
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
                         <div className="content-wrapper">
-
-                            <SearchBar
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-
                             <h1 className="saas-title">{getGreeting()}</h1>
 
                             {loading && <p>Cargando tu música...</p>}

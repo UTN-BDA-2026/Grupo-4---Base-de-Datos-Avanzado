@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import Playlists from './pages/Playlists';
+import Library from './pages/Library'
 import PlaylistDetail from './pages/PlaylistDetail';
 import Search from './pages/Search';
 import TrackDetail from './pages/TrackDetail';
@@ -22,7 +22,7 @@ function App() {
 
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/playlists" element={<ProtectedRoute><Playlists /></ProtectedRoute>} />
+          <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
           <Route path="/playlists/:id" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
           <Route path="/buscar" element={<ProtectedRoute><Search /></ProtectedRoute>} />
           <Route path="/cancion/:id" element={<ProtectedRoute><TrackDetail /></ProtectedRoute>} />

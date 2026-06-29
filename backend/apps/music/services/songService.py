@@ -1,12 +1,12 @@
 import json
 import logging
 from django.db import transaction
-from django.db.models import Q
 from django.core.cache import cache
 from ..models import Artist, Album, Song
 from . import deezer
 from concurrent.futures import ThreadPoolExecutor
 from .enrichment import ensure_artist_complete, ensure_album_complete
+from django.db.models import Q, Case, When, Value, IntegerField
 
 logger = logging.getLogger(__name__)
 
@@ -70,14 +70,22 @@ def _get_or_fetch_artist(deezer_id: str) -> Artist | None:
 def search_songs(query: str, limit: int = 20) -> list:
     cache_key = f'search:{query.lower()}:{limit}'
     cached = cache.get(cache_key)
-    
+
     if cached:
         return list(Song.objects.select_related('artist', 'album').filter(id__in=json.loads(cached)).order_by('-popularity'))
-    
+
     local_songs = list(
         Song.objects.select_related('artist', 'album')
         .filter(Q(title__icontains=query) | Q(artist__name__icontains=query) | Q(album__name__icontains=query))
-        .order_by('-popularity')[:limit]
+        .annotate(
+            relevance=Case(
+                When(title__iexact=query, then=Value(0)),
+                When(title__istartswith=query, then=Value(1)),
+                default=Value(2),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by('relevance', '-popularity')[:limit]
     )
 
     if len(local_songs) >= limit:

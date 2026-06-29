@@ -4,6 +4,7 @@ import { useArtistDetail } from '../hooks/useArtistDetail';
 import Sidebar from '../components/Sidebar';
 import AlbumCard from '../components/AlbumCard';
 import PlayerBar from '../components/PlayerBar';
+import FollowButton from '../components/FollowedButton';
 import '../index.css';
 
 const formatFollowers = (count) => {
@@ -34,6 +35,8 @@ const ArtistDetail = () => {
         setAlbumTab,
         loading,
         error,
+        toggleFollow,
+        followLoading,
     } = useArtistDetail(deezerId);
 
     if (loading) {
@@ -101,8 +104,14 @@ const ArtistDetail = () => {
                                     <div className="profile-info">
                                         <span className="profile-label">Artista</span>
                                         <h1 className="profile-name">{artist.name}</h1>
-                                        <div className="profile-badges">
+                                        <div className="profile-badges" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                             <span className="badge-dark">{formatFollowers(artist.followers)}</span>
+                                            <FollowButton
+                                                isFollowing={artist.is_following}
+                                                onToggle={toggleFollow}
+                                                loading={followLoading}
+                                                size="md"
+                                            />
                                         </div>
                                     </div>
                                 </div>

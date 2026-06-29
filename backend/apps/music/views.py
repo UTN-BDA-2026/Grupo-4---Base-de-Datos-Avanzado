@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.db.models import Q, Case, When, Value, IntegerField
 from .services import (
     search_songs,
     get_song_detail,
@@ -14,8 +15,29 @@ from .services import (
     get_top_artists,
     get_top_albums,
 )
-from .serializers import SongSerializer, ArtistSerializer, AlbumSerializer, TopArtistSerializer, TopAlbumSerializer
-from .models import Artist, Album
+from .serializers import (
+    SongSerializer, 
+    ArtistSerializer, 
+    AlbumSerializer, 
+    TopArtistSerializer, 
+    TopAlbumSerializer,
+    UserAlbumSerializer,
+    UserArtistSerializer
+)
+from .models import Artist, Album, UserAlbum , UserArtist
+from apps.playlists.models import Playlist
+from apps.playlists.serializers import PlaylistSearchSerializer
+
+
+def _relevance_case(field_name: str, query: str):
+    """Devuelve una anotación de relevancia: 0 = exacto, 1 = empieza con, 2 = contiene."""
+    return Case(
+        When(**{f'{field_name}__iexact': query}, then=Value(0)),
+        When(**{f'{field_name}__istartswith': query}, then=Value(1)),
+        default=Value(2),
+        output_field=IntegerField(),
+    )
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -26,31 +48,52 @@ def song_search(request):
             {'error': 'El parámetro q es requerido.'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     limit = int(request.query_params.get('limit', 20))
     search_type = request.query_params.get('type', 'all')
 
     results = {}
+    songs = []
 
-    if search_type in ['all', 'songs']:
-         songs = search_songs(query, limit=limit)
-         results['songs'] = SongSerializer(songs, many=True).data
+    if search_type in ('all', 'songs'):
+        songs = search_songs(query, limit=limit)
+        results['songs'] = SongSerializer(songs, many=True).data
 
-    
     if search_type in ('all', 'artist'):
-        artists = Artist.objects.filter(
-            name__icontains=query
-        ).order_by('-followers')[:limit]
-        results['artists'] = ArtistSerializer(artists, many=True).data
+        artist_ids_from_songs = {s.artist_id for s in songs if s.artist_id}
+        artists = list(
+            Artist.objects.filter(
+                Q(name__icontains=query) | Q(id__in=artist_ids_from_songs)
+            )
+            .annotate(relevance=_relevance_case('name', query))
+            .order_by('relevance', '-followers')[:limit]
+        )
+        results['artists'] = ArtistSerializer(artists, many=True, context={'request': request}).data
 
     if search_type in ('all', 'album'):
-        albums = Album.objects.filter(
-            name__icontains=query
-        ).order_by('-release_date')[:limit]
+        album_ids_from_songs = {s.album_id for s in songs if s.album_id}
+        albums = list(
+            Album.objects.filter(
+                Q(name__icontains=query) | Q(id__in=album_ids_from_songs)
+            )
+            .annotate(relevance=_relevance_case('name', query))
+            .order_by('relevance', '-release_date')[:limit]
+        )
         results['albums'] = AlbumSerializer(albums, many=True).data
 
-    return Response(results)
+    if search_type in ('all', 'playlist'):
+        playlists = list(
+            Playlist.objects.filter(
+                Q(name__icontains=query) | Q(songs__title__icontains=query),
+                Q(is_public=True) | Q(user=request.user)
+            )
+            .distinct() 
+            .annotate(relevance=_relevance_case('name', query))
+            .order_by('relevance', '-updated_at')[:limit]
+        )
+        results['playlists'] = PlaylistSearchSerializer(playlists, many=True).data
 
+    return Response(results)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -73,7 +116,7 @@ def artist_detail(request, deezer_id):
             {'error': 'Artista no encontrado.'},
             status=status.HTTP_404_NOT_FOUND
         )
-    return Response(ArtistSerializer(artist).data)
+    return Response(ArtistSerializer(artist, context={'request': request}).data)
 
 
 @api_view(['GET'])
@@ -88,22 +131,22 @@ def top_songs(request):
 @permission_classes([IsAuthenticated])
 def artist_songs(request, deezer_id):
     songs = get_songs_by_artist(deezer_id)
-    return Response(SongSerializer(songs, many=True).data)
+    return Response(SongSerializer(songs, many=True, context={'request': request}).data)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def artist_albums(request, deezer_id):
     record_type = request.query_params.get('type', 'album')
-    
+
     albums = get_albums_by_artist(deezer_id, record_type=record_type)
-    
+
     if not albums:
         return Response({
             'message': f"El artista actualmente no cuenta con lanzamientos del tipo '{record_type}'.",
             'results': []
         }, status=status.HTTP_200_OK)
-    
+
     serializer = AlbumSerializer(albums, many=True)
     return Response(serializer.data)
 
@@ -139,3 +182,59 @@ def top_albums(request):
     limit = int(request.query_params.get('limit', 20))
     albums = get_top_albums(limit=limit)
     return Response(TopAlbumSerializer(albums, many=True).data)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_save_album(request, deezer_id):
+    album = get_album_detail(str(deezer_id))
+    
+    if not album:
+        return Response(
+            {'error': 'No se pudo procesar u obtener el álbum solicitado.'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    user_album_queryset = UserAlbum.objects.filter(user=request.user, album=album)
+
+    if user_album_queryset.exists():
+        user_album_queryset.delete()
+        return Response({'saved': False, 'message': 'Álbum eliminado de tu biblioteca.'}, status=status.HTTP_200_OK)
+    else:
+        UserAlbum.objects.create(user=request.user, album=album)
+        return Response({'saved': True, 'message': 'Álbum guardado en tu biblioteca con éxito.'}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_saved_albums(request):
+    saved_albums = UserAlbum.objects.filter(user=request.user).select_related('album', 'album__artist')
+    serializer = UserAlbumSerializer(saved_albums, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_follow_artist(request, deezer_id):
+    artist = get_artist_detail(str(deezer_id))
+
+    if not artist:
+        return Response(
+            {'error': 'No se pudo procesar u obtener el artista solicitado.'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    user_artist_queryset = UserArtist.objects.filter(user=request.user, artist=artist)
+
+    if user_artist_queryset.exists():
+        user_artist_queryset.delete()
+        return Response({'following': False, 'message': 'Dejaste de seguir al artista.'}, status=status.HTTP_200_OK)
+    else:
+        UserArtist.objects.create(user=request.user, artist=artist)
+        return Response({'following': True, 'message': 'Ahora sigues a este artista.'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_followed_artists(request):
+    followed = UserArtist.objects.filter(user=request.user).select_related('artist')
+    serializer = UserArtistSerializer(followed, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
