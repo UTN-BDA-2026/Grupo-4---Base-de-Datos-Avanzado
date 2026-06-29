@@ -19,6 +19,9 @@ backend/.venv/
 
 **/__pycache__/
 *.pyc
+__pycache__/
+*.py[cod]
+*$py.class
 backend/.cache/
 backend/.pytest_cache/
 backend/.ruff_cache/
