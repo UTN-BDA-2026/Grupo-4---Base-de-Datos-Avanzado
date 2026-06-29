@@ -45,6 +45,7 @@ El proyecto implementa los siguientes conceptos de la materia:
 - ORM (Django ORM)
 - NoSQL mediante Redis
 - Backup & Restore
+- Particionado
 
 ---
 
