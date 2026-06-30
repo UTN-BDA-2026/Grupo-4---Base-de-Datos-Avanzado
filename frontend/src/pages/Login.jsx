@@ -38,10 +38,6 @@ const Login = () => {
                         <div className="badge-dark">✧ Acceso seguro</div>
                         <h1>Vuelve a tu<br/>sala de<br/>escucha.</h1>
                         <p>Inicia sesión para sincronizar tu actividad y preferencias al instante.</p>
-                        <div className="stats-container">
-                            <div className="stat-pill">128 playlists</div>
-                            <div className="stat-pill">42 artistas</div>
-                        </div>
                     </div>
 
                     <div className="form-panel">

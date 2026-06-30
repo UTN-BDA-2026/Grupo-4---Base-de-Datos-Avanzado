@@ -115,7 +115,7 @@ const Library = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                                 <div>
                                     <h1 className="saas-title" style={{ margin: 0, fontSize: '2.5rem', letterSpacing: '-1px' }}>Mi Biblioteca</h1>
-                                    <span style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '5px', display: 'block' }}>✧ Tu Colección Sonora</span>
+                                    <span style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '5px', display: 'block' }}>✧ Tus Playlists</span>
                                 </div>
                                 
                                 {activeTab === 'playlists' && (

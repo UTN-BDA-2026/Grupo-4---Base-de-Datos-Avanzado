@@ -14,7 +14,7 @@ const LogoutModal = ({ isOpen, onClose, onConfirm }) => {
                     </svg>
                 </div>
                 <h3 className="modal-title">¿Cerrar sesión?</h3>
-                <p className="modal-text">Tendrás que volver a ingresar tus credenciales la próxima vez que quieras acceder a Identidad Sonora.</p>
+                <p className="modal-text">Tendrás que volver a ingresar tus credenciales la próxima vez que quieras acceder a  MusicHub.</p>
                 <div className="modal-actions">
                     <button className="btn-glass" onClick={onClose}>Cancelar</button>
                     {}

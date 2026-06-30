@@ -43,7 +43,7 @@ const Register = () => {
 
                     <div className="info-panel">
                         <span className="badge">✧ Nueva cuenta</span>
-                        <h1>Crea tu<br/>identidad<br/>sonora.</h1>
+                        <h1>Inicia<br/> en MusicHub.</h1>
                         <p>Conecta tus gustos con historial y recomendaciones generadas por IA.</p>
 
                         <div className="feature-item">
@@ -63,7 +63,7 @@ const Register = () => {
                         <ErrorMessage message={error} />
 
                         <form onSubmit={handleSubmit}>
-                            <FormInput label="Nombre visible" name="username" onChange={handleChange} />
+                            <FormInput label="Nombre de Usuario" name="username" onChange={handleChange} />
                             <FormInput label="Email" type="email" name="email" onChange={handleChange} />
                             <FormInput label="Contraseña" type="password" name="password" onChange={handleChange} />
                             <FormInput label="Repetir contraseña" type="password" name="password2" onChange={handleChange} />

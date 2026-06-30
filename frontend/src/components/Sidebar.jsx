@@ -10,7 +10,7 @@ const Sidebar = ({ user, onLogoutClick }) => {
                     <div className="brand-logo">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
                     </div>
-                    <span className="sidebar-text">Identidad Sonora</span>
+                    <span className="sidebar-text">MusicHub</span>
                 </div>
 
                 <nav className="saas-nav">
