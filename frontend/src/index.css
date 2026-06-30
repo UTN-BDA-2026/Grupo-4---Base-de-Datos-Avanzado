@@ -555,6 +555,12 @@ body {
 .player-controls { display: flex; align-items: center; gap: 24px; }
 .icon-btn { background: transparent; border: none; color: rgba(255, 255, 255, 0.5); cursor: pointer; padding: 0; transition: color 0.2s, transform 0.2s; }
 .icon-btn:hover { color: white; transform: scale(1.1); }
+.icon-btn.repeat-btn,
+.icon-btn.shuffle-btn { color: rgba(255, 255, 255, 0.35); }
+.icon-btn.repeat-btn.active,
+.icon-btn.shuffle-btn.active { color: #5eead4; filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.55)); }
+.icon-btn.repeat-btn.active:hover,
+.icon-btn.shuffle-btn.active:hover { color: #2dd4bf; }
 .play-btn { width: 44px; height: 44px; border-radius: 50%; background: white; color: black; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 16px rgba(255, 255, 255, 0.15);}
 .play-btn:hover { transform: scale(1.08); }
 

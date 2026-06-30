@@ -219,7 +219,9 @@ button.icon-btn.shuffle-btn:hover {
 .repeat-btn.active:hover,
 .shuffle-btn.active:hover {
     color: #2dd4bf !important;
-}ton.icon-btn.repeat-btn.active:hover,
+}
+
+button.icon-btn.repeat-btn.active:hover,
 button.icon-btn.shuffle-btn.active:hover {
     color: #2dd4bf !important;
 }
