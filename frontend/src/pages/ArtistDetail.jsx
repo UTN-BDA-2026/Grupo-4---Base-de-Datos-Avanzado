@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useArtistDetail } from '../hooks/useArtistDetail';
@@ -6,6 +7,7 @@ import AlbumCard from '../components/AlbumCard';
 import PlayerBar from '../components/PlayerBar';
 import FollowButton from '../components/FollowedButton';
 import BackButton from '../components/BackButton';
+import DetailPlaybackActions from '../components/DetailPlaybackActions';
 import '../index.css';
 
 const formatFollowers = (count) => {
@@ -39,6 +41,10 @@ const ArtistDetail = () => {
         toggleFollow,
         followLoading,
     } = useArtistDetail(deezerId);
+    const [playerTrack, setPlayerTrack] = useState(null);
+    const [shufflePlayback, setShufflePlayback] = useState(false);
+    const [playSignal, setPlaySignal] = useState(0);
+    const [artistPlaybackActive, setArtistPlaybackActive] = useState(false);
 
     if (loading) {
         return (
@@ -74,9 +80,34 @@ const ArtistDetail = () => {
         );
     }
 
-    const currentTrack = songs[0]
-        ? { title: songs[0].title, artist: songs[0].artist?.name }
+    const popularSongs = songs.slice(0, 10);
+    const defaultTrack = popularSongs[0]
+        ? { title: popularSongs[0].title, artist: popularSongs[0].artist?.name || artist.name }
         : { title: 'Sin reproducción', artist: '—' };
+    const currentTrack = playerTrack || defaultTrack;
+
+    const playSong = (song, shuffle = false) => {
+        setPlayerTrack({ title: song.title, artist: song.artist?.name || artist.name });
+        setShufflePlayback(shuffle);
+        setArtistPlaybackActive(true);
+        setPlaySignal((signal) => signal + 1);
+    };
+
+    const handlePlayArtist = () => {
+        if (artistPlaybackActive) {
+            setArtistPlaybackActive(false);
+            return;
+        }
+
+        if (popularSongs.length === 0) return;
+        playSong(popularSongs[0], false);
+    };
+
+    const handleShuffleArtist = () => {
+        if (popularSongs.length === 0) return;
+        const randomSong = popularSongs[Math.floor(Math.random() * popularSongs.length)];
+        playSong(randomSong, true);
+    };
 
     return (
         <div className="saas-container">
@@ -87,11 +118,11 @@ const ArtistDetail = () => {
                 <Sidebar user={user} />
 
                 <main className="saas-main-panel">
-                    <div className="saas-content-scroll">
-                        <div className="content-wrapper">
+                    <div className="saas-content-scroll detail-scroll">
+                        <div className="content-wrapper detail-content-wrapper">
                             <BackButton />
 
-                            <div className="profile-hero">
+                            <div className="profile-hero detail-hero artist-detail-hero">
                                 <div className="profile-hero-left">
                                     <div
                                         className="profile-avatar-large"
@@ -106,30 +137,43 @@ const ArtistDetail = () => {
                                     <div className="profile-info">
                                         <span className="profile-label">Artista</span>
                                         <h1 className="profile-name">{artist.name}</h1>
-                                        <div className="profile-badges" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                        <div className="profile-badges artist-meta-row">
                                             <span className="badge-dark">{formatFollowers(artist.followers)}</span>
-                                            <FollowButton
-                                                isFollowing={artist.is_following}
-                                                onToggle={toggleFollow}
-                                                loading={followLoading}
-                                                size="md"
-                                            />
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {songs.length > 0 && (
+                            <DetailPlaybackActions
+                                isPlaying={artistPlaybackActive}
+                                shuffleActive={shufflePlayback}
+                                onPlayToggle={handlePlayArtist}
+                                onShuffle={handleShuffleArtist}
+                                className="detail-page-actions artist-page-actions"
+                                playLabel={`Reproducir canciones populares de ${artist.name}`}
+                                pauseLabel={`Pausar ${artist.name}`}
+                                playDisabled={popularSongs.length === 0}
+                                shuffleDisabled={popularSongs.length === 0}
+                            >
+                                <FollowButton
+                                    isFollowing={artist.is_following}
+                                    onToggle={toggleFollow}
+                                    loading={followLoading}
+                                    size="md"
+                                />
+                            </DetailPlaybackActions>
+
+                            {popularSongs.length > 0 && (
                                 <section className="profile-section">
                                     <div className="section-header">
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones populares</h2>
                                     </div>
                                     <div className="tracks-list">
-                                        {songs.slice(0, 10).map((song, index) => (
+                                        {popularSongs.map((song, index) => (
                                             <div
                                                 className="track-item"
                                                 key={song.deezer_id}
-                                                onClick={() => {/* reproducir */}}
+                                                onClick={() => playSong(song, false)}
                                             >
                                                 <span className="track-number">{index + 1}</span>
                                                 <div
@@ -204,7 +248,13 @@ const ArtistDetail = () => {
                 </main>
             </div>
 
-            <PlayerBar track={currentTrack} />
+            <PlayerBar
+                track={currentTrack}
+                shuffleActive={shufflePlayback}
+                playSignal={playSignal}
+                playing={artistPlaybackActive}
+                onPlayingChange={setArtistPlaybackActive}
+            />
         </div>
     );
 };

@@ -6,6 +6,7 @@ import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
 import BackButton from '../components/BackButton';
+import DetailPlaybackActions from '../components/DetailPlaybackActions';
 import '../index.css';
 
 const formatDuration = (ms) => {
@@ -30,6 +31,7 @@ const PlaylistDetail = () => {
     const [playerTrack, setPlayerTrack] = useState(null);
     const [shufflePlayback, setShufflePlayback] = useState(false);
     const [playSignal, setPlaySignal] = useState(0);
+    const [playbackActive, setPlaybackActive] = useState(false);
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
@@ -71,8 +73,14 @@ const PlaylistDetail = () => {
     const currentTrack = playerTrack || defaultTrack;
 
     const handlePlayPlaylist = () => {
+        if (playbackActive) {
+            setPlaybackActive(false);
+            return;
+        }
+
         setPlayerTrack(defaultTrack);
         setShufflePlayback(false);
+        setPlaybackActive(true);
         setPlaySignal((signal) => signal + 1);
     };
 
@@ -82,6 +90,7 @@ const PlaylistDetail = () => {
         const randomSong = songs[Math.floor(Math.random() * songs.length)].song;
         setPlayerTrack({ title: randomSong.title, artist: randomSong.artist?.name });
         setShufflePlayback(true);
+        setPlaybackActive(true);
         setPlaySignal((signal) => signal + 1);
     };
 
@@ -109,10 +118,10 @@ const PlaylistDetail = () => {
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll detail-scroll">
                         <div className="content-wrapper detail-content-wrapper">
-                        <BackButton />
+                            <BackButton />
 
-                        {/* CABECERA */}
-                        <div className="profile-hero detail-hero playlist-detail-hero">
+                            {/* CABECERA */}
+                            <div className="profile-hero detail-hero playlist-detail-hero">
                             <div className="playlist-detail-cover" style={{
                                 background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
                             }} />
@@ -149,46 +158,30 @@ const PlaylistDetail = () => {
                                     <strong>{playlist.owner || user?.username}</strong>
                                     <span style={{ color: '#9ca3af' }}> • {playlist.total_songs || playlist.songs?.length || 0} canciones • {playlist.total_duration || '0:00'}</span>
                                 </div>
-                                <div className="detail-actions playlist-header-actions">
-                                    <button className="detail-play-btn" type="button" onClick={handlePlayPlaylist} aria-label="Reproducir playlist">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="black" aria-hidden="true"><path d="M6 4l15 8-15 8V4z" /></svg>
-                                    </button>
-                                    <button className={`detail-icon-btn ${shufflePlayback ? 'active' : ''}`} type="button" onClick={handleShufflePlaylist} aria-label="Reproduccion aleatoria" title="Reproduccion aleatoria">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                            <polyline points="16 3 21 3 21 8"></polyline>
-                                            <line x1="4" y1="20" x2="21" y2="3"></line>
-                                            <polyline points="21 16 21 21 16 21"></polyline>
-                                            <line x1="15" y1="15" x2="21" y2="21"></line>
-                                            <line x1="4" y1="4" x2="9" y2="9"></line>
-                                        </svg>
-                                    </button>
-                                    <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
-                                        Editar
-                                    </button>
-                                    <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
-                                        Eliminar
-                                    </button>
-                                </div>
                             </div>
-                        </div>
+                            </div>
 
-                            <button
-                                onClick={() => { setIsEditing(true); setEditName(playlist.name); }}
-                                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}
+                            <DetailPlaybackActions
+                            isPlaying={playbackActive}
+                            shuffleActive={shufflePlayback}
+                            onPlayToggle={handlePlayPlaylist}
+                            onShuffle={handleShufflePlaylist}
+                            className="detail-page-actions playlist-page-actions"
+                            playLabel="Reproducir playlist"
+                            pauseLabel="Pausar playlist"
+                            playDisabled={!playlist.songs || playlist.songs.length === 0}
+                            shuffleDisabled={!playlist.songs || playlist.songs.length === 0}
                             >
-                                ✎ Editar
+                            <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
+                                Editar
                             </button>
-
-                            <button
-                                onClick={() => setShowDeleteModal(true)}
-                                style={{ background: 'transparent', border: '1px solid rgba(255,107,107,0.3)', color: '#ff6b6b', padding: '8px 16px', borderRadius: '20px', cursor: 'pointer', display: 'flex', gap: '8px', alignItems: 'center' }}
-                            >
-                                🗑 Eliminar Playlist
+                            <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
+                                Eliminar
                             </button>
-                        </div>
+                            </DetailPlaybackActions>
 
-                        {/* TABLA DE CANCIONES */}
-                        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#9ca3af', textAlign: 'left', fontSize: '0.95rem' }}>
+                            {/* TABLA DE CANCIONES */}
+                            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#9ca3af', textAlign: 'left', fontSize: '0.95rem' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                                     <th style={{ padding: '10px 15px', width: '40px', fontWeight: '500' }}>#</th>
@@ -255,7 +248,7 @@ const PlaylistDetail = () => {
                 </main>
             </div>
 
-            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} />
+            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} playing={playbackActive} onPlayingChange={setPlaybackActive} />
             <LogoutModal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={async () => { navigate('/login'); }} />
 
             {/* Modal eliminar playlist */}

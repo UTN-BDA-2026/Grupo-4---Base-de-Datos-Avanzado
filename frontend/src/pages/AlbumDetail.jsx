@@ -5,6 +5,7 @@ import { useAlbumDetail } from '../hooks/useAlbumDetail';
 import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
 import BackButton from '../components/BackButton';
+import DetailPlaybackActions from '../components/DetailPlaybackActions';
 import '../index.css';
 
 const formatDuration = (ms) => {
@@ -27,6 +28,7 @@ const AlbumDetail = () => {
     const [playerTrack, setPlayerTrack] = useState(null);
     const [shufflePlayback, setShufflePlayback] = useState(false);
     const [playSignal, setPlaySignal] = useState(0);
+    const [playbackActive, setPlaybackActive] = useState(false);
 
     if (loading) {
         return (
@@ -69,8 +71,14 @@ const AlbumDetail = () => {
     const currentTrack = playerTrack || defaultTrack;
 
     const handlePlayAlbum = () => {
+        if (playbackActive) {
+            setPlaybackActive(false);
+            return;
+        }
+
         setPlayerTrack(defaultTrack);
         setShufflePlayback(false);
+        setPlaybackActive(true);
         setPlaySignal((signal) => signal + 1);
     };
 
@@ -79,6 +87,7 @@ const AlbumDetail = () => {
         const randomSong = songs[Math.floor(Math.random() * songs.length)];
         setPlayerTrack({ title: randomSong.title, artist: randomSong.artist?.name || album.artist?.name });
         setShufflePlayback(true);
+        setPlaybackActive(true);
         setPlaySignal((signal) => signal + 1);
     };
 
@@ -91,8 +100,8 @@ const AlbumDetail = () => {
                 <Sidebar user={user} />
 
                 <main className="saas-main-panel">
-                    <div className="saas-content-scroll">
-                        <div className="content-wrapper">
+                    <div className="saas-content-scroll detail-scroll">
+                        <div className="content-wrapper detail-content-wrapper">
                             <BackButton />
 
                             <div className="profile-hero detail-hero compact-detail-hero">
@@ -123,20 +132,15 @@ const AlbumDetail = () => {
 
                             {songs.length > 0 && (
                                 <section className="profile-section">
-                                    <div className="detail-actions">
-                                        <button className="detail-play-btn" type="button" onClick={handlePlayAlbum} aria-label="Reproducir album">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="black" aria-hidden="true"><path d="M6 4l15 8-15 8V4z" /></svg>
-                                        </button>
-                                        <button className={`detail-icon-btn ${shufflePlayback ? 'active' : ''}`} type="button" onClick={handleShuffleAlbum} aria-label="Reproduccion aleatoria" title="Reproduccion aleatoria">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                                <polyline points="16 3 21 3 21 8"></polyline>
-                                                <line x1="4" y1="20" x2="21" y2="3"></line>
-                                                <polyline points="21 16 21 21 16 21"></polyline>
-                                                <line x1="15" y1="15" x2="21" y2="21"></line>
-                                                <line x1="4" y1="4" x2="9" y2="9"></line>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    <DetailPlaybackActions
+                                        isPlaying={playbackActive}
+                                        shuffleActive={shufflePlayback}
+                                        onPlayToggle={handlePlayAlbum}
+                                        onShuffle={handleShuffleAlbum}
+                                        className="detail-page-actions"
+                                        playLabel="Reproducir album"
+                                        pauseLabel="Pausar album"
+                                    />
                                     <div className="section-header">
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones</h2>
                                     </div>
@@ -163,7 +167,7 @@ const AlbumDetail = () => {
                 </main>
             </div>
 
-            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} />
+            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} playing={playbackActive} onPlayingChange={setPlaybackActive} />
         </div>
     );
 };

@@ -63,13 +63,15 @@ const VolumeControl = () => {
     );
 };
 
-const PlayerBar = ({ track, shuffleActive = false, playSignal = 0 }) => {
+const PlayerBar = ({ track, shuffleActive = false, playSignal = 0, playing, onPlayingChange }) => {
     const [repeat, setRepeat] = useState(0);
     const [shuffleOverride, setShuffleOverride] = useState({ source: shuffleActive, value: shuffleActive });
     const [playOverride, setPlayOverride] = useState({ signal: playSignal, value: false });
 
     const shuffle = shuffleOverride.source === shuffleActive ? shuffleOverride.value : shuffleActive;
-    const isPlaying = playOverride.signal === playSignal ? playOverride.value : playSignal > 0;
+    const isPlaying = typeof playing === 'boolean'
+        ? playing
+        : playOverride.signal === playSignal ? playOverride.value : playSignal > 0;
 
     const handleRepeat = () => {
         setRepeat((prev) => (prev + 1) % 3);
@@ -77,6 +79,17 @@ const PlayerBar = ({ track, shuffleActive = false, playSignal = 0 }) => {
 
     const handleShuffle = () => {
         setShuffleOverride({ source: shuffleActive, value: !shuffle });
+    };
+
+    const handlePlayToggle = () => {
+        const nextPlaying = !isPlaying;
+
+        if (typeof playing === 'boolean') {
+            onPlayingChange?.(nextPlaying);
+            return;
+        }
+
+        setPlayOverride({ signal: playSignal, value: nextPlaying });
     };
 
     // Fallback de seguridad por si track no llega
@@ -126,7 +139,7 @@ const PlayerBar = ({ track, shuffleActive = false, playSignal = 0 }) => {
                 {/* Play */}
                 <button
                     className="play-btn"
-                    onClick={() => setPlayOverride({ signal: playSignal, value: !isPlaying })}
+                    onClick={handlePlayToggle}
                     aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
                 >
                     {isPlaying ? (

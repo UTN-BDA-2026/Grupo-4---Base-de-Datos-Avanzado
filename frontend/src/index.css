@@ -1099,7 +1099,7 @@ body {
 
 /* Detail pages and library refinements */
 .detail-scroll {
-    padding-top: 32px;
+    padding-top: 24px;
 }
 
 .detail-content-wrapper {
@@ -1112,7 +1112,7 @@ body {
     width: 42px;
     height: 42px;
     padding: 0;
-    margin: 0 0 18px 0;
+    margin: 0 0 14px 0;
     justify-content: center;
     gap: 0;
     border-radius: 50%;
@@ -1149,8 +1149,8 @@ body {
 .detail-hero,
 .compact-detail-hero {
     margin-top: 0;
-    margin-bottom: 28px;
-    padding: 32px;
+    margin-bottom: 18px;
+    padding: 28px;
     border-radius: 28px;
 }
 
@@ -1160,10 +1160,14 @@ body {
 
 .detail-hero .profile-avatar-large,
 .playlist-detail-cover {
-    width: 168px;
-    height: 168px;
+    width: 156px;
+    height: 156px;
     border-radius: 22px;
     flex: 0 0 auto;
+}
+
+.artist-detail-hero .profile-avatar-large {
+    border-radius: 50%;
 }
 
 .detail-hero .profile-name,
@@ -1229,9 +1233,8 @@ body {
     margin-bottom: 24px;
 }
 
-.playlist-header-actions {
-    margin-top: 10px;
-    margin-bottom: 0;
+.detail-page-actions {
+    margin-bottom: 18px;
 }
 
 .detail-play-btn,
@@ -1255,6 +1258,14 @@ body {
 .detail-play-btn:hover {
     transform: translateY(-2px) scale(1.03);
     box-shadow: 0 18px 38px rgba(94, 234, 212, 0.38);
+}
+
+.detail-play-btn:disabled,
+.detail-icon-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+    transform: none;
+    box-shadow: none;
 }
 
 .detail-icon-btn {
@@ -1487,6 +1498,10 @@ body {
         border-radius: 22px;
     }
 
+    .artist-detail-hero .profile-avatar-large {
+        border-radius: 50%;
+    }
+
     .profile-name {
         font-size: 48px;
     }
@@ -1587,6 +1602,10 @@ body {
     .detail-icon-btn {
         width: 42px;
         height: 42px;
+    }
+
+    .artist-detail-hero .profile-avatar-large {
+        border-radius: 50%;
     }
 
     .artists-grid,
