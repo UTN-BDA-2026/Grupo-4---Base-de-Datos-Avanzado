@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar';
 import AlbumCard from '../components/AlbumCard';
 import PlayerBar from '../components/PlayerBar';
 import FollowButton from '../components/FollowedButton';
+import BackButton from '../components/BackButton';
 import '../index.css';
 
 const formatFollowers = (count) => {
@@ -88,6 +89,7 @@ const ArtistDetail = () => {
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
                         <div className="content-wrapper">
+                            <BackButton />
 
                             <div className="profile-hero">
                                 <div className="profile-hero-left">

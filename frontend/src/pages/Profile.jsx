@@ -7,6 +7,7 @@ import ArtistCard from '../components/ArtistCard';
 import TrackRow from '../components/TrackRow';
 import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
+import BackButton from '../components/BackButton';
 import '../index.css';
 
 const topArtists = [
@@ -49,6 +50,7 @@ const Profile = () => {
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
                         <div className="content-wrapper">
+                            <BackButton />
 
                             <ProfileHeader
                                 user={user}

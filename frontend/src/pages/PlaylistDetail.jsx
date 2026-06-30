@@ -5,6 +5,7 @@ import { usePlaylist } from '../hooks/usePlaylist';
 import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
+import BackButton from '../components/BackButton';
 import '../index.css';
 
 const formatDuration = (ms) => {
@@ -84,6 +85,7 @@ const PlaylistDetail = () => {
 
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll" style={{ padding: '2rem 4rem' }}>
+                        <BackButton />
 
                         {/* CABECERA */}
                         <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', marginBottom: '2rem', marginTop: '2rem' }}>

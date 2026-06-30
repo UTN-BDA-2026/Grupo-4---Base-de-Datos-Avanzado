@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAlbumDetail } from '../hooks/useAlbumDetail';
 import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
+import BackButton from '../components/BackButton';
 import '../index.css';
 
 const formatDuration = (ms) => {
@@ -72,6 +73,7 @@ const AlbumDetail = () => {
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
                         <div className="content-wrapper">
+                            <BackButton />
 
                             <div className="profile-hero">
                                 <div className="profile-hero-left">

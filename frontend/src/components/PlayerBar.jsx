@@ -67,6 +67,7 @@ const PlayerBar = ({ track }) => {
     // Estados para los botones
     const [repeat, setRepeat] = useState(0);
     const [shuffle, setShuffle] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const handleRepeat = () => {
         setRepeat((prev) => (prev + 1) % 3);
@@ -121,8 +122,21 @@ const PlayerBar = ({ track }) => {
                 </button>
                 
                 {/* Play */}
-                <button className="play-btn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <button
+                    className="play-btn"
+                    onClick={() => setIsPlaying((prev) => !prev)}
+                    aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                >
+                    {isPlaying ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                            <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                        </svg>
+                    ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" aria-hidden="true">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                    )}
                 </button>
                 
                 {/* Next */}
