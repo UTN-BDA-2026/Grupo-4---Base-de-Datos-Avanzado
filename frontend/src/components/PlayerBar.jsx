@@ -1,4 +1,67 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+const VolumeControl = () => {
+    const [volume, setVolume] = useState(72);
+    const [isVolumeOpen, setIsVolumeOpen] = useState(false);
+    const volumeRef = useRef(null);
+
+    // Cierra la capsula cuando el usuario hace clic fuera del control.
+    useEffect(() => {
+        if (!isVolumeOpen) return;
+
+        const handleClickOutside = (event) => {
+            if (volumeRef.current && !volumeRef.current.contains(event.target)) {
+                setIsVolumeOpen(false);
+            }
+        };
+
+        document.addEventListener('pointerdown', handleClickOutside);
+        return () => document.removeEventListener('pointerdown', handleClickOutside);
+    }, [isVolumeOpen]);
+
+    const handleVolumeChange = (event) => {
+        setVolume(Number(event.target.value));
+    };
+
+    return (
+        <div className="volume-control" ref={volumeRef}>
+            <div className={`volume-popover ${isVolumeOpen ? 'open' : ''}`} aria-hidden={!isVolumeOpen}>
+                <input
+                    className="volume-slider"
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    style={{ '--volume-level': `${volume}%` }}
+                    aria-label="Volumen"
+                    tabIndex={isVolumeOpen ? 0 : -1}
+                />
+            </div>
+
+            <button
+                className={`icon-btn volume-btn ${isVolumeOpen ? 'active' : ''}`}
+                onClick={() => setIsVolumeOpen((prev) => !prev)}
+                aria-label={volume === 0 ? 'Volumen silenciado' : 'Control de volumen'}
+                aria-expanded={isVolumeOpen}
+            >
+                {volume === 0 ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                    </svg>
+                ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+                        <path d="M19 5a9 9 0 0 1 0 14"></path>
+                    </svg>
+                )}
+            </button>
+        </div>
+    );
+};
 
 const PlayerBar = ({ track }) => {
     // Estados para los botones
@@ -89,6 +152,7 @@ const PlayerBar = ({ track }) => {
                     <div className="timeline-progress"></div>
                 </div>
                 <span>-1:50</span>
+                <VolumeControl />
             </div>
         </div>
     );

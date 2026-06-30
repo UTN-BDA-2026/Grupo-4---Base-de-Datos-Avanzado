@@ -567,6 +567,83 @@ body {
 .player-timeline { display: flex; align-items: center; gap: 16px; width: 30%; justify-content: flex-end; font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.4); font-variant-numeric: tabular-nums; }
 .timeline-bar { width: 120px; height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; }
 .timeline-progress { width: 40%; height: 100%; background: #5eead4; border-radius: 2px; box-shadow: 0 0 10px rgba(94, 234, 212, 0.5); }
+.volume-control { position: relative; display: flex; align-items: center; justify-content: center; }
+.volume-btn { width: 20px; height: 20px; }
+.volume-btn.active { color: #5eead4; filter: drop-shadow(0 0 8px rgba(94, 234, 212, 0.45)); }
+.volume-popover {
+    position: absolute;
+    right: 50%;
+    bottom: calc(100% + 18px);
+    width: 42px;
+    height: 138px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 0;
+    background: rgba(15, 15, 15, 0.42);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top-color: rgba(255, 255, 255, 0.16);
+    border-radius: 24px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(50%, 8px) scale(0.92);
+    transform-origin: bottom center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 60;
+}
+.volume-popover.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(50%, 0) scale(1);
+}
+.volume-slider {
+    --volume-level: 72%;
+    width: 6px;
+    height: 96px;
+    margin: 0;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    border-radius: 999px;
+    background: linear-gradient(to top, #5eead4 0%, #5eead4 var(--volume-level), rgba(255, 255, 255, 0.16) var(--volume-level), rgba(255, 255, 255, 0.16) 100%);
+    outline: none;
+}
+.volume-slider::-webkit-slider-runnable-track {
+    width: 6px;
+    height: 96px;
+    border-radius: 999px;
+    background: transparent;
+}
+.volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #f8fffd;
+    border: 2px solid #5eead4;
+    box-shadow: 0 4px 12px rgba(94, 234, 212, 0.35);
+    transform: translateX(-4px);
+}
+.volume-slider::-moz-range-track {
+    width: 6px;
+    height: 96px;
+    border-radius: 999px;
+    background: transparent;
+}
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #f8fffd;
+    border: 2px solid #5eead4;
+    box-shadow: 0 4px 12px rgba(94, 234, 212, 0.35);
+}
 
 /* =========================================
    DISEÑO SAAS PREMIUM - VISTA PERFIL
