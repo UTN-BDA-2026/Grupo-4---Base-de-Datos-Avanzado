@@ -1,6 +1,6 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.db.models import Q, Case, When, Value, IntegerField
 from .services import (
@@ -27,7 +27,79 @@ from .serializers import (
 from .models import Artist, Album, UserAlbum , UserArtist
 from apps.playlists.models import Playlist
 from apps.playlists.serializers import PlaylistSearchSerializer
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.http import HttpResponse
 
+import requests as http_requests
+from django.http import HttpResponse
+
+@api_view(['GET'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def proxy_preview(request, deezer_id):
+    from django.core.cache import cache
+
+    cache_key = f'preview_audio:{deezer_id}'
+    cached_audio = cache.get(cache_key)
+    if cached_audio:
+        response = HttpResponse(cached_audio, content_type='audio/mpeg')
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Accept-Ranges'] = 'bytes'
+        response['Content-Length'] = len(cached_audio)
+        return response
+
+    song = get_song_detail(str(deezer_id))
+    preview_url = song.preview_url if song else None
+
+    if not preview_url:
+        try:
+            from .services import deezer as deezer_client
+            track_data = deezer_client.get_track(deezer_id)
+            preview_url = track_data.get('preview', '')
+        except Exception as e:
+            print(f"Error obteniendo track de Deezer: {e}")
+            return HttpResponse(status=404)
+
+    if not preview_url:
+        return HttpResponse(status=404)
+
+    try:
+        deezer_response = http_requests.get(
+            preview_url,
+            timeout=15,
+            headers={'Referer': 'https://www.deezer.com/', 'User-Agent': 'Mozilla/5.0'},
+        )
+
+        if deezer_response.status_code == 403 and song:
+            try:
+                from .services import deezer as deezer_client
+                track_data = deezer_client.get_track(deezer_id)
+                fresh_url = track_data.get('preview', '')
+                if fresh_url:
+                    song.preview_url = fresh_url
+                    song.save(update_fields=['preview_url'])
+                    deezer_response = http_requests.get(
+                        fresh_url,
+                        timeout=15,
+                        headers={'Referer': 'https://www.deezer.com/', 'User-Agent': 'Mozilla/5.0'},
+                    )
+            except Exception:
+                return HttpResponse(status=502)
+
+        if deezer_response.status_code != 200:
+            return HttpResponse(status=deezer_response.status_code)
+
+        cache.set(cache_key, deezer_response.content, timeout=86400)
+
+        response = HttpResponse(deezer_response.content, content_type='audio/mpeg')
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Accept-Ranges'] = 'bytes'
+        response['Content-Length'] = len(deezer_response.content)
+        return response
+
+    except http_requests.RequestException:
+        return HttpResponse(status=502)
 
 def _relevance_case(field_name: str, query: str):
     """Devuelve una anotación de relevancia: 0 = exacto, 1 = empieza con, 2 = contiene."""

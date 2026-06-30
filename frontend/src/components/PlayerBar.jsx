@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { usePlayer } from '../context/PlayerContext';
 
 const VolumeControl = () => {
     const [volume, setVolume] = useState(72);
     const [isVolumeOpen, setIsVolumeOpen] = useState(false);
     const volumeRef = useRef(null);
 
-    // Cierra la capsula cuando el usuario hace clic fuera del control.
     useEffect(() => {
         if (!isVolumeOpen) return;
 
@@ -63,54 +63,52 @@ const VolumeControl = () => {
     );
 };
 
-const PlayerBar = ({ track, shuffleActive = false, playSignal = 0, playing, onPlayingChange }) => {
-    const [repeat, setRepeat] = useState(0);
-    const [shuffleOverride, setShuffleOverride] = useState({ source: shuffleActive, value: shuffleActive });
-    const [playOverride, setPlayOverride] = useState({ signal: playSignal, value: false });
+const formatTime = (seconds) => {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+};
 
-    const shuffle = shuffleOverride.source === shuffleActive ? shuffleOverride.value : shuffleActive;
-    const isPlaying = typeof playing === 'boolean'
-        ? playing
-        : playOverride.signal === playSignal ? playOverride.value : playSignal > 0;
+const PlayerBar = () => {
+    const { currentTrack, isPlaying, progress, duration, togglePlay, seek } = usePlayer();
+    const [repeat, setRepeat] = useState(0);
+    const [shuffle, setShuffle] = useState(false);
 
     const handleRepeat = () => {
         setRepeat((prev) => (prev + 1) % 3);
     };
 
     const handleShuffle = () => {
-        setShuffleOverride({ source: shuffleActive, value: !shuffle });
+        setShuffle((prev) => !prev);
     };
 
-    const handlePlayToggle = () => {
-        const nextPlaying = !isPlaying;
-
-        if (typeof playing === 'boolean') {
-            onPlayingChange?.(nextPlaying);
-            return;
-        }
-
-        setPlayOverride({ signal: playSignal, value: nextPlaying });
-    };
-
-    // Fallback de seguridad por si track no llega
-    const currentTrack = track || { title: "Sin título", artist: "Desconocido" };
+    const elapsed = (progress / 100) * duration;
+    const remaining = duration - elapsed;
 
     return (
         <div className="saas-player-capsule">
-            {/* Información de la pista - Usando la clase original */}
+            {/* Información de la pista */}
             <div className="player-track">
-                <div className="track-art"></div>
+                <div
+                    className="track-art"
+                    style={currentTrack?.album?.cover_url ? {
+                        backgroundImage: `url(${currentTrack.album.cover_url})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                    } : undefined}
+                />
                 <div className="track-meta">
-                    <h4>{currentTrack.title}</h4>
-                    <p>{currentTrack.artist}</p>
+                    <h4>{currentTrack?.title || '—'}</h4>
+                    <p>{currentTrack?.artist?.name || '—'}</p>
                 </div>
             </div>
 
-            {/* Controles centrales - Usando la clase original */}
+            {/* Controles centrales */}
             <div className="player-controls">
                 {/* Repetición (Loop) */}
-                <button 
-                    className={`icon-btn repeat-btn ${repeat !== 0 ? 'active' : ''}`} 
+                <button
+                    className={`icon-btn repeat-btn ${repeat !== 0 ? 'active' : ''}`}
                     onClick={handleRepeat}
                 >
                     {repeat === 2 ? (
@@ -133,13 +131,16 @@ const PlayerBar = ({ track, shuffleActive = false, playSignal = 0, playing, onPl
 
                 {/* Previous */}
                 <button className="icon-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                        <line x1="5" y1="19" x2="5" y2="5"></line>
+                    </svg>
                 </button>
-                
-                {/* Play */}
+
+                {/* Play / Pause */}
                 <button
                     className="play-btn"
-                    onClick={handlePlayToggle}
+                    onClick={togglePlay}
                     aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
                 >
                     {isPlaying ? (
@@ -153,15 +154,18 @@ const PlayerBar = ({ track, shuffleActive = false, playSignal = 0, playing, onPl
                         </svg>
                     )}
                 </button>
-                
+
                 {/* Next */}
                 <button className="icon-btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
                 </button>
-                
+
                 {/* Aleatorio (Shuffle) */}
-                <button 
-                    className={`icon-btn shuffle-btn ${shuffle ? 'active' : ''}`} 
+                <button
+                    className={`icon-btn shuffle-btn ${shuffle ? 'active' : ''}`}
                     onClick={handleShuffle}
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -174,13 +178,24 @@ const PlayerBar = ({ track, shuffleActive = false, playSignal = 0, playing, onPl
                 </button>
             </div>
 
-            {/* Línea de tiempo - Usando la clase original */}
+            {/* Línea de tiempo */}
             <div className="player-timeline">
-                <span>1:42</span>
-                <div className="timeline-bar">
-                    <div className="timeline-progress"></div>
+                <span>{formatTime(elapsed)}</span>
+                <div
+                    className="timeline-bar"
+                    onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const percent = ((e.clientX - rect.left) / rect.width) * 100;
+                        seek(percent);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <div
+                        className="timeline-progress"
+                        style={{ width: `${progress}%` }}
+                    />
                 </div>
-                <span>-1:50</span>
+                <span>-{formatTime(remaining)}</span>
                 <VolumeControl />
             </div>
         </div>

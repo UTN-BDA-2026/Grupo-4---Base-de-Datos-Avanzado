@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('songs/<str:deezer_id>/preview/', views.proxy_preview, name='song-preview'),
     path('search/',                          views.song_search,       name='song-search'),
     path('songs/<str:deezer_id>/',           views.song_detail,       name='song-detail'),
     path('top/',                             views.top_songs,         name='top-songs'),

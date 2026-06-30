@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useHomeData } from '../hooks/useHomeData';
+import { usePlayer } from '../context/PlayerContext';
 import Sidebar from '../components/Sidebar';
 import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import ArtistCard from '../components/ArtistCard';
 import AlbumCard from '../components/AlbumCard';
-import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
 import { getGreeting } from '../utils/greeting';
 import '../index.css';
@@ -15,8 +15,8 @@ const Home = () => {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
     const { recentlyPlayed, topArtists, topAlbums, loading } = useHomeData();
+    const { play, currentTrack, isPlaying } = usePlayer();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
 
     const [showAllRecent, setShowAllRecent] = useState(false);
     const [showAllArtists, setShowAllArtists] = useState(false);
@@ -29,21 +29,13 @@ const Home = () => {
         navigate('/login');
     };
 
-    const currentTrack = recentlyPlayed[0]
-        ? { title: recentlyPlayed[0].title, artist: recentlyPlayed[0].artist?.name }
-        : { title: 'Sin reproducción', artist: '—' };
-
-    const visibleRecent = showAllRecent ? recentlyPlayed : recentlyPlayed.slice(0, INITIAL_LIMIT);
-    const visibleArtists = showAllArtists ? topArtists : topArtists.slice(0, INITIAL_LIMIT);
-    const visibleAlbums = showAllAlbums ? topAlbums : topAlbums.slice(0, INITIAL_LIMIT);
+    const visibleRecent  = showAllRecent   ? recentlyPlayed : recentlyPlayed.slice(0, INITIAL_LIMIT);
+    const visibleArtists = showAllArtists  ? topArtists     : topArtists.slice(0, INITIAL_LIMIT);
+    const visibleAlbums  = showAllAlbums   ? topAlbums      : topAlbums.slice(0, INITIAL_LIMIT);
 
     const viewAllBtnStyle = {
-        background: 'none',
-        border: 'none',
-        color: '#5eead4',
-        cursor: 'pointer',
-        fontWeight: 'bold',
-        fontSize: '0.9rem'
+        background: 'none', border: 'none', color: '#5eead4',
+        cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem'
     };
 
     return (
@@ -52,10 +44,7 @@ const Home = () => {
             <div className="glass-overlay"></div>
 
             <div className="saas-workspace">
-                <Sidebar
-                    user={user}
-                    onLogoutClick={() => setShowLogoutModal(true)}
-                />
+                <Sidebar user={user} onLogoutClick={() => setShowLogoutModal(true)} />
 
                 <main className="saas-main-panel">
                     <div className="saas-content-scroll">
@@ -69,10 +58,7 @@ const Home = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Escuchado Recientemente</h2>
                                         {recentlyPlayed.length > INITIAL_LIMIT && (
-                                            <button 
-                                                onClick={() => setShowAllRecent(!showAllRecent)}
-                                                style={viewAllBtnStyle}
-                                            >
+                                            <button onClick={() => setShowAllRecent(!showAllRecent)} style={viewAllBtnStyle}>
                                                 {showAllRecent ? 'Ver menos' : 'Ver todo'}
                                             </button>
                                         )}
@@ -84,7 +70,8 @@ const Home = () => {
                                                 title={song.title}
                                                 artist={song.artist?.name}
                                                 cover={song.album?.cover_url}
-                                                onClick={() => {/* reproducir */}}
+                                                isPlaying={isPlaying && currentTrack?.deezer_id === song.deezer_id}
+                                                onClick={() => play(song)}
                                             />
                                         ))}
                                     </div>
@@ -96,10 +83,7 @@ const Home = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Artistas Destacados</h2>
                                         {topArtists.length > INITIAL_LIMIT && (
-                                            <button 
-                                                onClick={() => setShowAllArtists(!showAllArtists)}
-                                                style={viewAllBtnStyle}
-                                            >
+                                            <button onClick={() => setShowAllArtists(!showAllArtists)} style={viewAllBtnStyle}>
                                                 {showAllArtists ? 'Ver menos' : 'Ver todo'}
                                             </button>
                                         )}
@@ -123,10 +107,7 @@ const Home = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Álbumes Populares</h2>
                                         {topAlbums.length > INITIAL_LIMIT && (
-                                            <button 
-                                                onClick={() => setShowAllAlbums(!showAllAlbums)}
-                                                style={viewAllBtnStyle}
-                                            >
+                                            <button onClick={() => setShowAllAlbums(!showAllAlbums)} style={viewAllBtnStyle}>
                                                 {showAllAlbums ? 'Ver menos' : 'Ver todo'}
                                             </button>
                                         )}
@@ -145,13 +126,10 @@ const Home = () => {
                                     </div>
                                 </section>
                             )}
-
                         </div>
                     </div>
                 </main>
             </div>
-
-            <PlayerBar track={currentTrack} />
 
             <LogoutModal
                 isOpen={showLogoutModal}
