@@ -27,6 +27,9 @@ const PlaylistDetail = () => {
     const [editName, setEditName] = useState('');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [songToDelete, setSongToDelete] = useState(null);
+    const [playerTrack, setPlayerTrack] = useState(null);
+    const [shufflePlayback, setShufflePlayback] = useState(false);
+    const [playSignal, setPlaySignal] = useState(0);
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
@@ -61,6 +64,26 @@ const PlaylistDetail = () => {
 
     // Priorizamos la propiedad de imagen que envíe tu backend (image o cover_url)
     const playlistCover = playlist.image || playlist.cover_url;
+    const firstPlaylistSong = playlist.songs?.[0]?.song;
+    const defaultTrack = firstPlaylistSong
+        ? { title: firstPlaylistSong.title, artist: firstPlaylistSong.artist?.name }
+        : { title: playlist.name, artist: playlist.owner || 'â€”' };
+    const currentTrack = playerTrack || defaultTrack;
+
+    const handlePlayPlaylist = () => {
+        setPlayerTrack(defaultTrack);
+        setShufflePlayback(false);
+        setPlaySignal((signal) => signal + 1);
+    };
+
+    const handleShufflePlaylist = () => {
+        const songs = (playlist.songs || []).filter((item) => item.song);
+        if (songs.length === 0) return;
+        const randomSong = songs[Math.floor(Math.random() * songs.length)].song;
+        setPlayerTrack({ title: randomSong.title, artist: randomSong.artist?.name });
+        setShufflePlayback(true);
+        setPlaySignal((signal) => signal + 1);
+    };
 
     return (
         <div className="saas-container">
@@ -84,20 +107,17 @@ const PlaylistDetail = () => {
                 <Sidebar user={user} onLogoutClick={() => setShowLogoutModal(true)} />
 
                 <main className="saas-main-panel">
-                    <div className="saas-content-scroll" style={{ padding: '2rem 4rem' }}>
+                    <div className="saas-content-scroll detail-scroll">
+                        <div className="content-wrapper detail-content-wrapper">
                         <BackButton />
 
                         {/* CABECERA */}
-                        <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-end', marginBottom: '2rem', marginTop: '2rem' }}>
-                            <div style={{
-                                width: '230px', height: '230px', borderRadius: '12px',
-                                boxShadow: '0 10px 40px rgba(0,0,0,0.5)', flexShrink: 0,
-                                background: playlistCover
-                                    ? `url(${playlistCover}) center/cover`
-                                    : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
+                        <div className="profile-hero detail-hero playlist-detail-hero">
+                            <div className="playlist-detail-cover" style={{
+                                background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
                             }} />
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className="playlist-detail-info">
                                 <span style={{ color: '#5eead4', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>
                                     {playlist.is_public ? 'PLAYLIST PÚBLICA' : 'PLAYLIST PRIVADA'}
                                 </span>
@@ -117,7 +137,7 @@ const PlaylistDetail = () => {
                                         <button type="button" onClick={() => setIsEditing(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
                                     </form>
                                 ) : (
-                                    <h1 style={{ color: 'white', fontSize: '4.5rem', margin: 0, fontWeight: '900', lineHeight: '1.1', letterSpacing: '-1px' }}>
+                                    <h1 className="playlist-detail-title">
                                         {playlist.name}
                                     </h1>
                                 )}
@@ -125,22 +145,32 @@ const PlaylistDetail = () => {
                                 {playlist.description && (
                                     <p style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '4px' }}>{playlist.description}</p>
                                 )}
-                                <div style={{ color: 'white', fontSize: '0.9rem', marginTop: '5px' }}>
+                                <div className="playlist-detail-meta">
                                     <strong>{playlist.owner || user?.username}</strong>
                                     <span style={{ color: '#9ca3af' }}> • {playlist.total_songs || playlist.songs?.length || 0} canciones • {playlist.total_duration || '0:00'}</span>
                                 </div>
+                                <div className="detail-actions playlist-header-actions">
+                                    <button className="detail-play-btn" type="button" onClick={handlePlayPlaylist} aria-label="Reproducir playlist">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="black" aria-hidden="true"><path d="M6 4l15 8-15 8V4z" /></svg>
+                                    </button>
+                                    <button className={`detail-icon-btn ${shufflePlayback ? 'active' : ''}`} type="button" onClick={handleShufflePlaylist} aria-label="Reproduccion aleatoria" title="Reproduccion aleatoria">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                            <polyline points="16 3 21 3 21 8"></polyline>
+                                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                                            <polyline points="21 16 21 21 16 21"></polyline>
+                                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                                        </svg>
+                                    </button>
+                                    <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
+                                        Editar
+                                    </button>
+                                    <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
                         </div>
-
-                        {/* BOTONES */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '2.5rem' }}>
-                            <button style={{
-                                width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#5eead4',
-                                border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center',
-                                cursor: 'pointer', boxShadow: '0 8px 20px rgba(94, 234, 212, 0.3)'
-                            }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M6 4l15 8-15 8V4z" /></svg>
-                            </button>
 
                             <button
                                 onClick={() => { setIsEditing(true); setEditName(playlist.name); }}
@@ -220,11 +250,12 @@ const PlaylistDetail = () => {
                                 })}
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </main>
             </div>
 
-            <PlayerBar track={{ title: playlist.name, artist: playlist.owner || '—' }} />
+            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} />
             <LogoutModal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={async () => { navigate('/login'); }} />
 
             {/* Modal eliminar playlist */}

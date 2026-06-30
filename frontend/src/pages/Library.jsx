@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useLibraryActions } from '../hooks/useLibraryActions';
@@ -6,7 +6,7 @@ import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
 import Toast from '../components/Toast';
-import { createPlaylist } from '../services/playlistService';
+import { createPlaylist, updatePlaylist as updatePlaylistService } from '../services/playlistService';
 import api from '../services/api'; 
 import '../index.css';
 
@@ -19,12 +19,10 @@ const Library = () => {
         playlists,
         savedAlbums,
         followedArtists,
-        loading,
         toast,
         fetchPlaylists,
         fetchSavedAlbums,
-        fetchFollowedArtists,
-        handleToggleFollowArtist
+        fetchFollowedArtists
     } = useLibraryActions();
 
     const [activeTab, setActiveTab] = useState('playlists'); 
@@ -33,6 +31,9 @@ const Library = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [name, setName] = useState('');
     const [playlistToDelete, setPlaylistToDelete] = useState(null);
+    const [playlistMenuOpen, setPlaylistMenuOpen] = useState(null);
+    const [playlistToEdit, setPlaylistToEdit] = useState(null);
+    const [editName, setEditName] = useState('');
     const [localToast, setLocalToast] = useState('');
 
     useEffect(() => {
@@ -47,6 +48,14 @@ const Library = () => {
         if (activeTab === 'artists') fetchFollowedArtists();
 
     }, [activeTab, fetchSavedAlbums, fetchPlaylists, fetchFollowedArtists]);
+
+    useEffect(() => {
+        if (!playlistMenuOpen) return;
+
+        const closeMenu = () => setPlaylistMenuOpen(null);
+        document.addEventListener('click', closeMenu);
+        return () => document.removeEventListener('click', closeMenu);
+    }, [playlistMenuOpen]);
 
     const showLocalToast = (msg) => {
         setLocalToast(msg);
@@ -73,7 +82,35 @@ const Library = () => {
 
     const confirmDelete = (e, id) => {
         e.stopPropagation();
+        setPlaylistMenuOpen(null);
         setPlaylistToDelete(id);
+    };
+
+    const openPlaylistMenu = (e, id) => {
+        e.stopPropagation();
+        setPlaylistMenuOpen((currentId) => (currentId === id ? null : id));
+    };
+
+    const startEditPlaylist = (e, playlist) => {
+        e.stopPropagation();
+        setPlaylistToEdit(playlist);
+        setEditName(playlist.name);
+        setPlaylistMenuOpen(null);
+    };
+
+    const handleEditPlaylist = async (e) => {
+        e.preventDefault();
+        if (!playlistToEdit || !editName.trim()) return;
+
+        try {
+            await updatePlaylistService(playlistToEdit.id, { name: editName.trim() });
+            setPlaylistToEdit(null);
+            setEditName('');
+            fetchPlaylists();
+            showLocalToast('Playlist actualizada correctamente.');
+        } catch {
+            showLocalToast('Error al actualizar la playlist.');
+        }
     };
 
     const executeDelete = async () => {
@@ -83,7 +120,7 @@ const Library = () => {
             setPlaylistToDelete(null);
             fetchPlaylists();
             showLocalToast('Playlist eliminada correctamente.');
-        } catch (error) {
+        } catch {
             setPlaylistToDelete(null);
             showLocalToast('Error al eliminar la playlist.');
         }
@@ -160,20 +197,11 @@ const Library = () => {
                                     
                                     {activeTab === 'playlists' && (
                                         <>
-                                            <div 
-                                                onClick={() => navigate(`/playlists/likes`)} 
-                                                style={{ 
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '20px',
-                                                    cursor: 'pointer', position: 'relative', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.05)',
-                                                    width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '12px'
-                                                }}
-                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.07)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
+                                            <div
+                                                onClick={() => navigate(`/playlists/likes`)}
+                                                className="library-card"
                                             >
-                                                <div style={{ 
-                                                    width: '100%', aspectRatio: '1/1', background: 'linear-gradient(135deg, #ec4899, #8b5cf6)', 
-                                                    borderRadius: '8px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' 
-                                                }}>
+                                                <div className="library-card-art library-liked-art">
                                                     <span style={{ fontSize: '3rem', color: 'white' }}>♥</span>
                                                 </div>
                                                 <div style={{ minWidth: 0 }}>
@@ -187,29 +215,37 @@ const Library = () => {
                                                 .map((pl) => {
                                                     const playlistCover = pl.cover_url || pl.image;
                                                     return (
-                                                        <div 
-                                                            key={pl.id} 
-                                                            onClick={() => navigate(`/playlists/${pl.id}`)} 
-                                                            style={{ 
-                                                                backgroundColor: 'rgba(255, 255, 255, 0.03)', borderRadius: '16px', padding: '20px',
-                                                                cursor: 'pointer', position: 'relative', transition: 'all 0.3s ease', border: '1px solid rgba(255, 255, 255, 0.05)',
-                                                                width: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '12px'
-                                                            }}
-                                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.07)'}
-                                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)'}
+                                                        <div
+                                                            key={pl.id}
+                                                            onClick={() => navigate(`/playlists/${pl.id}`)}
+                                                            className="library-card"
                                                         >
-                                                            <div style={{ 
-                                                                width: '100%', aspectRatio: '1/1', 
-                                                                background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)', 
-                                                                borderRadius: '8px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' 
-                                                            }}>
-                                                                <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', gap: '5px' }}>
-                                                                    <button 
-                                                                        onClick={(e) => confirmDelete(e, pl.id)}
-                                                                        style={{ background: 'rgba(0,0,0,0.5)', border: 'none', color: '#ff6b6b', cursor: 'pointer', padding: '6px', borderRadius: '50%', fontSize: '0.9rem' }}
+                                                            <div
+                                                                className="library-card-art"
+                                                                style={{
+                                                                    background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
+                                                                }}
+                                                            >
+                                                                <div className="library-card-actions">
+                                                                    <button
+                                                                        className="library-menu-trigger"
+                                                                        type="button"
+                                                                        onClick={(e) => openPlaylistMenu(e, pl.id)}
+                                                                        aria-label="Opciones de playlist"
+                                                                        aria-expanded={playlistMenuOpen === pl.id}
                                                                     >
-                                                                        🗑
+                                                                        <span aria-hidden="true">⋮</span>
                                                                     </button>
+                                                                    {playlistMenuOpen === pl.id && (
+                                                                        <div className="library-context-menu" onClick={(e) => e.stopPropagation()}>
+                                                                            <button type="button" onClick={(e) => startEditPlaylist(e, pl)}>
+                                                                                Editar playlist
+                                                                            </button>
+                                                                            <button type="button" className="danger" onClick={(e) => confirmDelete(e, pl.id)}>
+                                                                                Eliminar playlist
+                                                                            </button>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                             <div style={{ minWidth: 0 }}>
@@ -318,6 +354,36 @@ const Library = () => {
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                                 <button type="button" onClick={() => setIsCreating(false)} style={{ padding: '10px 20px', background: 'transparent', color: '#9ca3af', border: 'none', cursor: 'pointer' }}>Cancelar</button>
                                 <button type="submit" className="submit-btn" style={{ width: 'auto', margin: 0 }}>Crear</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {playlistToEdit && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(5px)',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999
+                }}>
+                    <div className="info-panel" style={{ width: '100%', maxWidth: '400px', border: '1px solid rgba(94, 234, 212, 0.3)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ margin: 0, color: 'white', fontSize: '1.5rem' }}>Editar playlist</h2>
+                            <button onClick={() => setPlaylistToEdit(null)} style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <form onSubmit={handleEditPlaylist}>
+                            <input
+                                type="text"
+                                value={editName}
+                                className="custom-input"
+                                onChange={(e) => setEditName(e.target.value)}
+                                required
+                                autoFocus
+                                style={{ width: '100%', boxSizing: 'border-box' }}
+                            />
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
+                                <button type="button" onClick={() => setPlaylistToEdit(null)} style={{ padding: '10px 20px', background: 'transparent', color: '#9ca3af', border: 'none', cursor: 'pointer' }}>Cancelar</button>
+                                <button type="submit" className="submit-btn" style={{ width: 'auto', margin: 0 }}>Guardar</button>
                             </div>
                         </form>
                     </div>

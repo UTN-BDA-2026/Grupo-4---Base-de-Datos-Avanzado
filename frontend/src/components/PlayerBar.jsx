@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const VolumeControl = () => {
     const [volume, setVolume] = useState(72);
@@ -63,18 +63,20 @@ const VolumeControl = () => {
     );
 };
 
-const PlayerBar = ({ track }) => {
-    // Estados para los botones
+const PlayerBar = ({ track, shuffleActive = false, playSignal = 0 }) => {
     const [repeat, setRepeat] = useState(0);
-    const [shuffle, setShuffle] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [shuffleOverride, setShuffleOverride] = useState({ source: shuffleActive, value: shuffleActive });
+    const [playOverride, setPlayOverride] = useState({ signal: playSignal, value: false });
+
+    const shuffle = shuffleOverride.source === shuffleActive ? shuffleOverride.value : shuffleActive;
+    const isPlaying = playOverride.signal === playSignal ? playOverride.value : playSignal > 0;
 
     const handleRepeat = () => {
         setRepeat((prev) => (prev + 1) % 3);
     };
 
     const handleShuffle = () => {
-        setShuffle(!shuffle);
+        setShuffleOverride({ source: shuffleActive, value: !shuffle });
     };
 
     // Fallback de seguridad por si track no llega
@@ -124,7 +126,7 @@ const PlayerBar = ({ track }) => {
                 {/* Play */}
                 <button
                     className="play-btn"
-                    onClick={() => setIsPlaying((prev) => !prev)}
+                    onClick={() => setPlayOverride({ signal: playSignal, value: !isPlaying })}
                     aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
                 >
                     {isPlaying ? (

@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Sidebar from '../components/Sidebar';
 import PlayerBar from '../components/PlayerBar';
+import BackButton from '../components/BackButton';
 import api from '../services/api';
 import '../index.css';
 
 const TrackDetail = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const { user } = useAuth();
     
     const [track, setTrack] = useState(null);
@@ -25,7 +25,7 @@ const TrackDetail = () => {
             try {
                 const { data } = await api.get(`/tracks/${id}/`); 
                 setTrack(data);
-            } catch (error) {
+            } catch {
                 setTrack({
                     id: id,
                     title: 'Get Lucky',
@@ -104,12 +104,7 @@ const TrackDetail = () => {
                     <div className="saas-content-scroll">
                         <div className="content-wrapper" style={{ textAlign: 'left', padding: '2rem 3rem', maxWidth: '1200px', margin: '0' }}>
                             
-                            <button 
-                                onClick={() => navigate(-1)} 
-                                style={{ background: 'transparent', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '1rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '5px' }}
-                            >
-                                ← Volver
-                            </button>
+                            <BackButton />
 
                             <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'flex-end', marginBottom: '3rem', flexWrap: 'wrap' }}>
                                 <div style={{ 
