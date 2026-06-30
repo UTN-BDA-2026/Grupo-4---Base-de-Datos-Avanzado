@@ -109,3 +109,163 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* =========================================
+   REPRODUCTOR (PLAYER CAPSULE)
+   ========================================= */
+.saas-player-capsule {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 760px;
+    max-width: 90vw;
+    height: 80px;
+    background: rgba(15, 15, 15, 0.25);
+    backdrop-filter: blur(64px) saturate(180%);
+    -webkit-backdrop-filter: blur(64px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 40px;
+    box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px 0 16px;
+}
+
+/* 1. Track Info (Izquierda) */
+.player-track { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+    width: 30%; 
+}
+.track-art { 
+    width: 56px; 
+    height: 56px; 
+    border-radius: 50%; 
+    background: linear-gradient(135deg, #0f766e, #5eead4); 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.track-meta h4 { 
+    margin: 0; 
+    font-size: 14px; 
+    font-weight: 700; 
+    letter-spacing: -0.2px;
+}
+.track-meta p { 
+    margin: 4px 0 0 0; 
+    font-size: 12px; 
+    color: rgba(255, 255, 255, 0.5); 
+}
+
+/* 2. Controles Centrales */
+.player-controls { 
+    display: flex; 
+    align-items: center; 
+    gap: 24px; 
+}
+
+.icon-btn { 
+    background: transparent; 
+    border: none; 
+    color: rgba(255, 255, 255, 0.5); 
+    cursor: pointer; 
+    padding: 0; 
+    transition: color 0.2s, transform 0.2s; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.icon-btn:hover { 
+    color: white; 
+    transform: scale(1.1); 
+}
+
+/* --- Botones Especiales (Repeat y Shuffle) --- */
+button.icon-btn.repeat-btn,
+button.icon-btn.shuffle-btn {
+    color: rgba(255, 255, 255, 0.35);
+}
+button.icon-btn.repeat-btn:hover,
+button.icon-btn.shuffle-btn:hover {
+    color: #ffffff;
+}
+
+/* ESTADO ACTIVO (Encendidos en Menta) */
+/* Estado normal */
+.repeat-btn,
+.shuffle-btn {
+    color: rgba(255,255,255,.35);
+    transition: color .25s ease, transform .25s ease, filter .25s ease;
+}
+
+/* Hover */
+.repeat-btn:hover,
+.shuffle-btn:hover {
+    color: white;
+}
+
+/* Activo */
+.repeat-btn.active,
+.shuffle-btn.active {
+    color: #5eead4 !important;
+    filter: drop-shadow(0 0 8px rgba(94,234,212,.55));
+}
+
+/* Hover cuando ya está activo */
+.repeat-btn.active:hover,
+.shuffle-btn.active:hover {
+    color: #2dd4bf !important;
+}ton.icon-btn.repeat-btn.active:hover,
+button.icon-btn.shuffle-btn.active:hover {
+    color: #2dd4bf !important;
+}
+
+/* Botón de Play */
+.play-btn { 
+    width: 44px; 
+    height: 44px; 
+    border-radius: 50%; 
+    background: white; 
+    color: black; 
+    border: none; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    cursor: pointer; 
+    transition: transform 0.2s; 
+    box-shadow: 0 8px 16px rgba(255, 255, 255, 0.15);
+}
+.play-btn:hover { 
+    transform: scale(1.08); 
+}
+
+/* 3. Timeline (Derecha) */
+.player-timeline { 
+    display: flex; 
+    align-items: center; 
+    gap: 16px; 
+    width: 30%; 
+    justify-content: flex-end; 
+    font-size: 11px; 
+    font-weight: 500; 
+    color: rgba(255, 255, 255, 0.4); 
+    font-variant-numeric: tabular-nums; 
+}
+.timeline-bar { 
+    width: 120px; 
+    height: 4px; 
+    background: rgba(255, 255, 255, 0.1); 
+    border-radius: 2px; 
+    overflow: hidden; 
+}
+.timeline-progress { 
+    width: 40%; 
+    height: 100%; 
+    background: #5eead4; 
+    border-radius: 2px; 
+    box-shadow: 0 0 10px rgba(94, 234, 212, 0.5); 
+}
