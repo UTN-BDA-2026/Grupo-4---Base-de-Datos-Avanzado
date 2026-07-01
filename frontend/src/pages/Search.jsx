@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useSearch } from '../hooks/useSearch';
 import Sidebar from '../components/Sidebar';
-import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
 import SearchFilters from '../components/SearchFilters';
 import SearchResults from '../components/SearchResults';
@@ -35,7 +34,6 @@ const Search = () => {
                     <div className="saas-content-scroll">
                         <div className="content-wrapper" style={{ textAlign: 'left', padding: '2rem 3rem', maxWidth: '1200px', margin: '0' }}>
 
-                            {/* Input de Búsqueda */}
                             <div style={{ marginBottom: '2rem', maxWidth: '500px' }}>
                                 <input
                                     type="text"
@@ -53,34 +51,30 @@ const Search = () => {
                                 />
                             </div>
 
-                            {/* Filtros */}
-                            <SearchFilters 
-                                query={query} 
-                                activeFilter={activeFilter} 
-                                setActiveFilter={setActiveFilter} 
+                            <SearchFilters
+                                query={query}
+                                activeFilter={activeFilter}
+                                setActiveFilter={setActiveFilter}
                             />
 
-                            {/* Estados de carga y error */}
                             {loading && <p style={{ color: '#9ca3af' }}>Buscando...</p>}
 
                             {error && (
                                 <p style={{ color: '#f87171' }}>No se pudo completar la búsqueda. Intentá de nuevo.</p>
                             )}
 
-                            {/* Resultados de Búsqueda */}
                             {!loading && !error && (
-                                <SearchResults 
-                                    results={results} 
-                                    activeFilter={activeFilter} 
-                                    query={query} 
-                                    navigate={navigate} 
+                                <SearchResults
+                                    results={results}
+                                    activeFilter={activeFilter}
+                                    query={query}
+                                    navigate={navigate}
                                 />
                             )}
                         </div>
                     </div>
                 </main>
             </div>
-            <PlayerBar track={{ title: 'Sin reproducción', artist: '—' }} />
             <LogoutModal isOpen={showLogoutModal} onClose={() => setShowLogoutModal(false)} onConfirm={handleLogoutConfirm} />
         </div>
     );

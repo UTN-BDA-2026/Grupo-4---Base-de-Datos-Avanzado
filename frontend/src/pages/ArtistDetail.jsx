@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useArtistDetail } from '../hooks/useArtistDetail';
+import { usePlayer } from '../context/PlayerContext';
 import Sidebar from '../components/Sidebar';
 import AlbumCard from '../components/AlbumCard';
-import PlayerBar from '../components/PlayerBar';
 import FollowButton from '../components/FollowedButton';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
@@ -41,10 +41,8 @@ const ArtistDetail = () => {
         toggleFollow,
         followLoading,
     } = useArtistDetail(deezerId);
-    const [playerTrack, setPlayerTrack] = useState(null);
-    const [shufflePlayback, setShufflePlayback] = useState(false);
-    const [playSignal, setPlaySignal] = useState(0);
-    const [artistPlaybackActive, setArtistPlaybackActive] = useState(false);
+
+    const { play, currentTrack, isPlaying } = usePlayer();
 
     if (loading) {
         return (
@@ -81,32 +79,20 @@ const ArtistDetail = () => {
     }
 
     const popularSongs = songs.slice(0, 10);
-    const defaultTrack = popularSongs[0]
-        ? { title: popularSongs[0].title, artist: popularSongs[0].artist?.name || artist.name }
-        : { title: 'Sin reproducción', artist: '—' };
-    const currentTrack = playerTrack || defaultTrack;
 
-    const playSong = (song, shuffle = false) => {
-        setPlayerTrack({ title: song.title, artist: song.artist?.name || artist.name });
-        setShufflePlayback(shuffle);
-        setArtistPlaybackActive(true);
-        setPlaySignal((signal) => signal + 1);
-    };
+    // ¿Lo que suena ahora es una canción popular de este artista?
+    const isArtistPlaying = isPlaying && !!currentTrack &&
+        popularSongs.some((song) => song.deezer_id === currentTrack.deezer_id);
 
     const handlePlayArtist = () => {
-        if (artistPlaybackActive) {
-            setArtistPlaybackActive(false);
-            return;
-        }
-
         if (popularSongs.length === 0) return;
-        playSong(popularSongs[0], false);
+        play(popularSongs[0], popularSongs);
     };
 
     const handleShuffleArtist = () => {
         if (popularSongs.length === 0) return;
         const randomSong = popularSongs[Math.floor(Math.random() * popularSongs.length)];
-        playSong(randomSong, true);
+        play(randomSong, popularSongs, { shuffle: true });
     };
 
     return (
@@ -145,8 +131,8 @@ const ArtistDetail = () => {
                             </div>
 
                             <DetailPlaybackActions
-                                isPlaying={artistPlaybackActive}
-                                shuffleActive={shufflePlayback}
+                                isPlaying={isArtistPlaying}
+                                shuffleActive={false}
                                 onPlayToggle={handlePlayArtist}
                                 onShuffle={handleShuffleArtist}
                                 className="detail-page-actions artist-page-actions"
@@ -169,27 +155,32 @@ const ArtistDetail = () => {
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones populares</h2>
                                     </div>
                                     <div className="tracks-list">
-                                        {popularSongs.map((song, index) => (
-                                            <div
-                                                className="track-item"
-                                                key={song.deezer_id}
-                                                onClick={() => playSong(song, false)}
-                                            >
-                                                <span className="track-number">{index + 1}</span>
+                                        {popularSongs.map((song, index) => {
+                                            const isThisPlaying = isPlaying && currentTrack?.deezer_id === song.deezer_id;
+                                            return (
                                                 <div
-                                                    className="track-thumb"
-                                                    style={song.album?.cover_url ? {
-                                                        backgroundImage: `url(${song.album.cover_url})`,
-                                                        backgroundSize: 'cover',
-                                                        backgroundPosition: 'center',
-                                                    } : undefined}
-                                                ></div>
-                                                <div className="track-details">
-                                                    <h4>{song.title}</h4>
+                                                    className="track-item"
+                                                    key={song.deezer_id}
+                                                    onClick={() => play(song, popularSongs)}
+                                                >
+                                                    <span className="track-number" style={{ color: isThisPlaying ? '#5eead4' : undefined }}>
+                                                        {index + 1}
+                                                    </span>
+                                                    <div
+                                                        className="track-thumb"
+                                                        style={song.album?.cover_url ? {
+                                                            backgroundImage: `url(${song.album.cover_url})`,
+                                                            backgroundSize: 'cover',
+                                                            backgroundPosition: 'center',
+                                                        } : undefined}
+                                                    ></div>
+                                                    <div className="track-details">
+                                                        <h4 style={{ color: isThisPlaying ? '#5eead4' : undefined }}>{song.title}</h4>
+                                                    </div>
+                                                    <span className="track-time">{formatDuration(song.duration_ms)}</span>
                                                 </div>
-                                                <span className="track-time">{formatDuration(song.duration_ms)}</span>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </section>
                             )}
@@ -220,8 +211,6 @@ const ArtistDetail = () => {
                                     </button>
                                 </div>
 
-                                {albumsLoading && <p>Cargando...</p>}
-
                                 {albumsLoading && <p>Cargando lanzamientos...</p>}
                                 {!albumsLoading && albums.length === 0 && (
                                     <p style={{ color: 'rgba(255,255,255,0.5)' }}>No hay lanzamientos en esta categoría.</p>
@@ -247,14 +236,6 @@ const ArtistDetail = () => {
                     </div>
                 </main>
             </div>
-
-            <PlayerBar
-                track={currentTrack}
-                shuffleActive={shufflePlayback}
-                playSignal={playSignal}
-                playing={artistPlaybackActive}
-                onPlayingChange={setArtistPlaybackActive}
-            />
         </div>
     );
 };

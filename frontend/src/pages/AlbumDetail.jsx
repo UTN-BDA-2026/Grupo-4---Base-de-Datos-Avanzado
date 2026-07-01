@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbumDetail } from '../hooks/useAlbumDetail';
+import { usePlayer } from '../context/PlayerContext';
 import Sidebar from '../components/Sidebar';
-import PlayerBar from '../components/PlayerBar';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
 import '../index.css';
@@ -25,10 +24,7 @@ const AlbumDetail = () => {
     const { deezerId } = useParams();
     const { user } = useAuth();
     const { album, songs, loading, error } = useAlbumDetail(deezerId);
-    const [playerTrack, setPlayerTrack] = useState(null);
-    const [shufflePlayback, setShufflePlayback] = useState(false);
-    const [playSignal, setPlaySignal] = useState(0);
-    const [playbackActive, setPlaybackActive] = useState(false);
+    const { play, currentTrack, isPlaying } = usePlayer();
 
     if (loading) {
         return (
@@ -64,31 +60,19 @@ const AlbumDetail = () => {
         );
     }
 
-    const defaultTrack = songs[0]
-        ? { title: songs[0].title, artist: songs[0].artist?.name }
-        : { title: 'Sin reproducción', artist: '—' };
-
-    const currentTrack = playerTrack || defaultTrack;
+    // ¿Lo que suena ahora pertenece a este álbum?
+    const isAlbumPlaying = isPlaying && !!currentTrack &&
+        songs.some((song) => song.deezer_id === currentTrack.deezer_id);
 
     const handlePlayAlbum = () => {
-        if (playbackActive) {
-            setPlaybackActive(false);
-            return;
-        }
-
-        setPlayerTrack(defaultTrack);
-        setShufflePlayback(false);
-        setPlaybackActive(true);
-        setPlaySignal((signal) => signal + 1);
+        if (songs.length === 0) return;
+        play(songs[0], songs);
     };
 
     const handleShuffleAlbum = () => {
         if (songs.length === 0) return;
         const randomSong = songs[Math.floor(Math.random() * songs.length)];
-        setPlayerTrack({ title: randomSong.title, artist: randomSong.artist?.name || album.artist?.name });
-        setShufflePlayback(true);
-        setPlaybackActive(true);
-        setPlaySignal((signal) => signal + 1);
+        play(randomSong, songs, { shuffle: true });
     };
 
     return (
@@ -133,31 +117,36 @@ const AlbumDetail = () => {
                             {songs.length > 0 && (
                                 <section className="profile-section">
                                     <DetailPlaybackActions
-                                        isPlaying={playbackActive}
-                                        shuffleActive={shufflePlayback}
+                                        isPlaying={isAlbumPlaying}
+                                        shuffleActive={false}
                                         onPlayToggle={handlePlayAlbum}
                                         onShuffle={handleShuffleAlbum}
                                         className="detail-page-actions"
-                                        playLabel="Reproducir album"
-                                        pauseLabel="Pausar album"
+                                        playLabel="Reproducir álbum"
+                                        pauseLabel="Pausar álbum"
                                     />
                                     <div className="section-header">
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones</h2>
                                     </div>
                                     <div className="tracks-list">
-                                        {songs.map((song, index) => (
-                                            <div
-                                                className="track-item"
-                                                key={song.deezer_id}
-                                                onClick={() => {/* reproducir */}}
-                                            >
-                                                <span className="track-number">{song.track_number || index + 1}</span>
-                                                <div className="track-details">
-                                                    <h4>{song.title}</h4>
+                                        {songs.map((song, index) => {
+                                            const isThisPlaying = isPlaying && currentTrack?.deezer_id === song.deezer_id;
+                                            return (
+                                                <div
+                                                    className="track-item"
+                                                    key={song.deezer_id}
+                                                    onClick={() => play(song, songs)}
+                                                >
+                                                    <span className="track-number" style={{ color: isThisPlaying ? '#5eead4' : undefined }}>
+                                                        {song.track_number || index + 1}
+                                                    </span>
+                                                    <div className="track-details">
+                                                        <h4 style={{ color: isThisPlaying ? '#5eead4' : undefined }}>{song.title}</h4>
+                                                    </div>
+                                                    <span className="track-time">{formatDuration(song.duration_ms)}</span>
                                                 </div>
-                                                <span className="track-time">{formatDuration(song.duration_ms)}</span>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </section>
                             )}
@@ -166,8 +155,6 @@ const AlbumDetail = () => {
                     </div>
                 </main>
             </div>
-
-            <PlayerBar track={currentTrack} shuffleActive={shufflePlayback} playSignal={playSignal} playing={playbackActive} onPlayingChange={setPlaybackActive} />
         </div>
     );
 };

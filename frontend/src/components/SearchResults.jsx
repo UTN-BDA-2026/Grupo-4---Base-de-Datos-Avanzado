@@ -1,28 +1,34 @@
 import React from 'react';
 import { formatDuration } from '../utils/formatDuration';
 import { useLibraryActions } from '../hooks/useLibraryActions';
+import { usePlayer } from '../context/PlayerContext';
 import AddToPlaylistModal from './AddToPlaylistModal';
 import FollowButton from './FollowedButton';
 import Toast from './Toast';
 
 const SearchResults = ({ results, activeFilter, query, navigate }) => {
-    const { 
-        playlists, 
-        modal, 
-        loading, 
-        toast, 
-        openModal, 
-        closeModal, 
+    const {
+        playlists,
+        modal,
+        loading,
+        toast,
+        openModal,
+        closeModal,
         addSongToPlaylist,
         handleToggleSaveAlbum,
         handleToggleFollowArtist,
         followOverrides,
     } = useLibraryActions();
 
-    const isArtistFollowed = (artist) => 
-        followOverrides[artist.deezer_id] !== undefined 
-            ? followOverrides[artist.deezer_id] 
+    const { play, currentTrack, isPlaying } = usePlayer();
+
+    const isArtistFollowed = (artist) =>
+        followOverrides[artist.deezer_id] !== undefined
+            ? followOverrides[artist.deezer_id]
             : !!artist.is_following;
+
+    const isSongPlaying = (song) =>
+        isPlaying && currentTrack?.deezer_id === song.deezer_id;
 
     const getUnifiedResults = () => {
         const unified = [];
@@ -46,6 +52,15 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
     const handleFollowClick = (e, artist) => {
         e.stopPropagation();
         handleToggleFollowArtist(artist.deezer_id, isArtistFollowed(artist));
+    };
+
+
+    const handleItemClick = (item, redirectUrl) => {
+        if (item.type === 'song') {
+            play(item, results.songs || [item]);
+            return;
+        }
+        navigate(redirectUrl);
     };
 
     if (activeFilter === 'all') {
@@ -99,17 +114,21 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                     redirectUrl = `/playlist/${item.id}`;
                                 }
 
+                                const thisPlaying = item.type === 'song' && isSongPlaying(item);
+
                                 return (
                                     <div
                                         key={`${item.type}-${item.deezer_id || item.id}`}
                                         style={{
                                             display: 'grid', gridTemplateColumns: '48px 1fr auto auto', alignItems: 'center', gap: '20px',
-                                            padding: '10px 15px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px',
+                                            padding: '10px 15px',
+                                            backgroundColor: thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                            borderRadius: '8px',
                                             cursor: 'pointer', transition: 'all 0.2s'
                                         }}
-                                        onClick={() => navigate(redirectUrl)}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'}
+                                        onClick={() => handleItemClick(item, redirectUrl)}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.06)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)'}
                                     >
                                         <div style={{
                                             width: '48px', height: '48px', flexShrink: 0,
@@ -118,7 +137,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                         }} />
 
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ color: 'white', fontWeight: '500', fontSize: '1rem' }}>{title}</span>
+                                            <span style={{ color: thisPlaying ? '#5eead4' : 'white', fontWeight: '500', fontSize: '1rem' }}>{title}</span>
                                             <span style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '4px' }}>{subtitle}</span>
                                         </div>
 
@@ -182,48 +201,53 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
 
                 {activeFilter === 'songs' && results.songs.length > 0 && (
                     <section>
-                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Canciones</h2>
+                        <h2 className="saas-subtitle" style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Canciones</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {results.songs.map((song) => (
-                                <div
-                                    key={song.deezer_id}
-                                    style={{
-                                        display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto 60px', alignItems: 'center', gap: '14px',
-                                        padding: '10px 15px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px',
-                                        cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.2s'
-                                    }}
-                                    onClick={() => navigate(`/album/${song.album?.deezer_id}`)}
-                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)'}
-                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)'}
-                                >
-                                    <div style={{ width: '48px', height: '48px', borderRadius: '6px', flexShrink: 0, background: song.album?.cover_url ? `url(${song.album.cover_url}) center/cover` : 'rgba(255, 255, 255, 0.08)' }} />
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{ color: 'white', fontWeight: '500' }}>{song.title}</span>
-                                        <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{song.artist?.name}</span>
-                                    </div>
-                                    <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{song.album?.name || 'Sencillo'}</span>
-                                    <button
-                                        onClick={(e) => handleAddClick(e, { ...song, type: 'song' })}
+                            {results.songs.map((song) => {
+                                const thisPlaying = isSongPlaying(song);
+                                return (
+                                    <div
+                                        key={song.deezer_id}
                                         style={{
-                                            background: 'transparent', color: '#9ca3af', border: 'none',
-                                            fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center',
-                                            justifyContent: 'center', padding: '0 8px', transition: 'color 0.2s'
+                                            display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto 60px', alignItems: 'center', gap: '14px',
+                                            padding: '10px 15px',
+                                            backgroundColor: thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)',
+                                            borderRadius: '8px',
+                                            cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.2s'
                                         }}
-                                        onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
-                                        onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                                        onClick={() => play(song, results.songs)}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.06)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)'}
                                     >
-                                        ⊕
-                                    </button>
-                                    <span style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'right' }}>{formatDuration(song.duration_ms)}</span>
-                                </div>
-                            ))}
+                                        <div style={{ width: '48px', height: '48px', borderRadius: '6px', flexShrink: 0, background: song.album?.cover_url ? `url(${song.album.cover_url}) center/cover` : 'rgba(255, 255, 255, 0.08)' }} />
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{ color: thisPlaying ? '#5eead4' : 'white', fontWeight: '500' }}>{song.title}</span>
+                                            <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{song.artist?.name}</span>
+                                        </div>
+                                        <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{song.album?.name || 'Sencillo'}</span>
+                                        <button
+                                            onClick={(e) => handleAddClick(e, { ...song, type: 'song' })}
+                                            style={{
+                                                background: 'transparent', color: '#9ca3af', border: 'none',
+                                                fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                                justifyContent: 'center', padding: '0 8px', transition: 'color 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
+                                            onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                                        >
+                                            ⊕
+                                        </button>
+                                        <span style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'right' }}>{formatDuration(song.duration_ms)}</span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </section>
                 )}
 
                 {activeFilter === 'artists' && results.artists.length > 0 && (
                     <section>
-                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Artistas</h2>
+                        <h2 className="saas-subtitle" style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Artistas</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' }}>
                             {results.artists.map((artist) => (
                                 <div
@@ -248,7 +272,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
 
                 {activeFilter === 'albums' && results.albums.length > 0 && (
                     <section>
-                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Álbumes</h2>
+                        <h2 className="saas-subtitle" style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Álbumes</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' }}>
                             {results.albums.map((album) => (
                                 <div
@@ -259,7 +283,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                     <div style={{ width: '100px', height: '100px', borderRadius: '8px', margin: '0 auto 12px auto', background: album.cover_url ? `url(${album.cover_url}) center/cover` : 'linear-gradient(135deg, #8b5cf6, #5eead4)' }} />
                                     <h3 style={{ margin: 0, color: 'white', fontSize: '1rem' }}>{album.name}</h3>
                                     <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: '0.85rem' }}>{album.artist?.name}</p>
-                                    
+
                                     <button
                                         onClick={(e) => handleAddClick(e, { ...album, type: 'album' })}
                                         style={{
@@ -279,7 +303,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
 
                 {activeFilter === 'playlists' && results.playlists?.length > 0 && (
                     <section>
-                        <h2 className="saas-subtitle" style={{ marginBottom: '1rem', color: 'white' }}>Playlists</h2>
+                        <h2 className="saas-subtitle" style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Playlists</h2>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '20px' }}>
                             {results.playlists.map((playlist) => (
                                 <div
