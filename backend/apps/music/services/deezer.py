@@ -36,6 +36,11 @@ def get_top_albums(limit: int = 20) -> list:
     response.raise_for_status()
     return response.json().get('data', [])
 
+def get_top_tracks(limit: int = 20) -> list:
+    response = requests.get(f'{DEEZER_BASE_URL}/chart/0/tracks', params={'limit': limit})
+    response.raise_for_status()
+    return response.json().get('data', [])
+
 def get_artist_top_tracks(deezer_artist_id: int, limit: int = 20) -> list:
     response = requests.get(
         f'{DEEZER_BASE_URL}/artist/{deezer_artist_id}/top',

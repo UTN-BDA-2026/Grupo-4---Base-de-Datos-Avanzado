@@ -3,11 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useArtistDetail } from '../hooks/useArtistDetail';
 import { usePlayer } from '../context/PlayerContext';
+import { useLibraryActions } from '../hooks/useLibraryActions';
 import Sidebar from '../components/Sidebar';
 import AlbumCard from '../components/AlbumCard';
+import TrackRow from '../components/TrackRow';
 import FollowButton from '../components/FollowedButton';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
+import AddToPlaylistModal from '../components/AddToPlaylistModal';
+import Toast from '../components/Toast';
+import { formatDuration } from '../utils/formatDuration';
 import '../index.css';
 
 const formatFollowers = (count) => {
@@ -15,14 +20,6 @@ const formatFollowers = (count) => {
     if (count >= 1_000_000) return `${(count / 1_000_000).toFixed(1)}M seguidores`;
     if (count >= 1_000) return `${(count / 1_000).toFixed(1)}K seguidores`;
     return `${count} seguidores`;
-};
-
-const formatDuration = (ms) => {
-    if (!ms) return '0:00';
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
 const ArtistDetail = () => {
@@ -43,6 +40,21 @@ const ArtistDetail = () => {
     } = useArtistDetail(deezerId);
 
     const { play, currentTrack, isPlaying } = usePlayer();
+
+    const {
+        playlists,
+        modal,
+        loading: libraryLoading,
+        toast,
+        openModal,
+        closeModal,
+        addSongToPlaylist,
+    } = useLibraryActions();
+
+    const handleAddClick = (e, song) => {
+        e.stopPropagation();
+        openModal({ id: song.id, title: song.title });
+    };
 
     if (loading) {
         return (
@@ -80,7 +92,6 @@ const ArtistDetail = () => {
 
     const popularSongs = songs.slice(0, 10);
 
-    // ¿Lo que suena ahora es una canción popular de este artista?
     const isArtistPlaying = isPlaying && !!currentTrack &&
         popularSongs.some((song) => song.deezer_id === currentTrack.deezer_id);
 
@@ -99,6 +110,18 @@ const ArtistDetail = () => {
         <div className="saas-container">
             <div className="app-background"></div>
             <div className="glass-overlay"></div>
+
+            <Toast toast={toast} />
+
+            {modal.open && (
+                <AddToPlaylistModal
+                    playlists={playlists}
+                    item={modal.item}
+                    loading={libraryLoading}
+                    onSelect={addSongToPlaylist}
+                    onClose={closeModal}
+                />
+            )}
 
             <div className="saas-workspace">
                 <Sidebar user={user} />
@@ -155,32 +178,33 @@ const ArtistDetail = () => {
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones populares</h2>
                                     </div>
                                     <div className="tracks-list">
-                                        {popularSongs.map((song, index) => {
-                                            const isThisPlaying = isPlaying && currentTrack?.deezer_id === song.deezer_id;
-                                            return (
-                                                <div
-                                                    className="track-item"
-                                                    key={song.deezer_id}
-                                                    onClick={() => play(song, popularSongs)}
-                                                >
-                                                    <span className="track-number" style={{ color: isThisPlaying ? '#5eead4' : undefined }}>
-                                                        {index + 1}
-                                                    </span>
-                                                    <div
-                                                        className="track-thumb"
-                                                        style={song.album?.cover_url ? {
-                                                            backgroundImage: `url(${song.album.cover_url})`,
-                                                            backgroundSize: 'cover',
-                                                            backgroundPosition: 'center',
-                                                        } : undefined}
-                                                    ></div>
-                                                    <div className="track-details">
-                                                        <h4 style={{ color: isThisPlaying ? '#5eead4' : undefined }}>{song.title}</h4>
-                                                    </div>
-                                                    <span className="track-time">{formatDuration(song.duration_ms)}</span>
-                                                </div>
-                                            );
-                                        })}
+                                        {popularSongs.map((song, index) => (
+                                            <TrackRow
+                                                key={song.deezer_id}
+                                                index={index}
+                                                title={song.title}
+                                                artist={song.artist?.name || artist.name}
+                                                coverUrl={song.album?.cover_url}
+                                                time={formatDuration(song.duration_ms)}
+                                                plays={song.popularity ? `${song.popularity} pts` : ''}
+                                                isPlaying={isPlaying && currentTrack?.deezer_id === song.deezer_id}
+                                                onClick={() => play(song, popularSongs)}
+                                                actions={
+                                                    <button
+                                                        onClick={(e) => handleAddClick(e, song)}
+                                                        style={{
+                                                            background: 'transparent', color: '#9ca3af', border: 'none',
+                                                            fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                                            justifyContent: 'center', padding: '0 20px', transition: 'color 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                                                    >
+                                                        ⊕
+                                                    </button>
+                                                }
+                                            />
+                                        ))}
                                     </div>
                                 </section>
                             )}
@@ -231,7 +255,6 @@ const ArtistDetail = () => {
                                     </div>
                                 )}
                             </section>
-
                         </div>
                     </div>
                 </main>

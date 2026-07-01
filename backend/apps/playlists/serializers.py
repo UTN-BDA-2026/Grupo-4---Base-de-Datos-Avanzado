@@ -10,9 +10,11 @@ class PlaylistSearchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = Playlist
-        fields = ['id', 'name', 'description', 'cover_url', 'is_public', 'owner', 'total_songs']
+        fields = ['id', 'name', 'description', 'cover_url', 'is_public', 'is_liked_songs', 'owner', 'total_songs']
 
     def get_cover_url(self, obj):
+        if obj.is_liked_songs:
+            return obj.cover_url or None 
         if obj.cover_url:
             return obj.cover_url
         primera_relacion = obj.playlistsong_set.order_by('position').first()
@@ -41,16 +43,19 @@ class PlaylistSerializer(serializers.ModelSerializer):
     class Meta:
         model  = Playlist
         fields = [
-            'id', 'name', 'description', 'cover_url', 'is_public', 
+            'id', 'name', 'description', 'cover_url', 'is_public', 'is_liked_songs',
             'owner', 'total_songs', 'total_duration', 'created_at', 'updated_at', 'songs'
         ]
 
     def get_cover_url(self, obj):
+        if obj.is_liked_songs:
+            return obj.cover_url or None 
+
         if obj.cover_url:
             return obj.cover_url
 
         primera_relacion = obj.playlistsong_set.all().order_by('position').first()
-        
+
         if primera_relacion and primera_relacion.song and primera_relacion.song.album:
             if hasattr(primera_relacion.song.album, 'cover_url') and primera_relacion.song.album.cover_url:
                 return primera_relacion.song.album.cover_url

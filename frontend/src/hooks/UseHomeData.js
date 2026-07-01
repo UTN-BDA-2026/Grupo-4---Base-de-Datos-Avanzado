@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getRecentlyPlayed, getTopArtists, getTopAlbums } from '../services/musicService';
+import { getTopArtists, getTopAlbums, getTopSongs, getRecentlyPlayed } from '../services/musicService';
 
 export const useHomeData = () => {
-  const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
   const [topAlbums, setTopAlbums] = useState([]);
+  const [topSongs, setTopSongs] = useState([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -12,14 +13,16 @@ export const useHomeData = () => {
     const fetchHomeData = async () => {
       try {
         setLoading(true);
-        const [recent, artists, albums] = await Promise.all([
-          getRecentlyPlayed(20),
+        const [artists, albums, songs, recent] = await Promise.all([
           getTopArtists(20),
           getTopAlbums(20),
+          getTopSongs(20),
+          getRecentlyPlayed(8),
         ]);
-        setRecentlyPlayed(recent);
         setTopArtists(artists);
         setTopAlbums(albums);
+        setTopSongs(songs);
+        setRecentlyPlayed(recent);
       } catch (err) {
         console.error('Error cargando datos del home:', err);
         setError(err);
@@ -31,5 +34,5 @@ export const useHomeData = () => {
     fetchHomeData();
   }, []);
 
-  return { recentlyPlayed, topArtists, topAlbums, loading, error };
+  return { topArtists, topAlbums, topSongs, recentlyPlayed, loading, error };
 };

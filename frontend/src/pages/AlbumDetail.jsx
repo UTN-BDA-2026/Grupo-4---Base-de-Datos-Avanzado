@@ -5,15 +5,9 @@ import { usePlayer } from '../context/PlayerContext';
 import Sidebar from '../components/Sidebar';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
+import { formatDuration } from '../utils/formatDuration';
+import { ACCENT_COLOR } from '../constants/theme';
 import '../index.css';
-
-const formatDuration = (ms) => {
-    if (!ms) return '0:00';
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
 
 const formatReleaseYear = (dateStr) => {
     if (!dateStr) return '';
@@ -60,7 +54,6 @@ const AlbumDetail = () => {
         );
     }
 
-    // ¿Lo que suena ahora pertenece a este álbum?
     const isAlbumPlaying = isPlaying && !!currentTrack &&
         songs.some((song) => song.deezer_id === currentTrack.deezer_id);
 
@@ -136,12 +129,22 @@ const AlbumDetail = () => {
                                                     className="track-item"
                                                     key={song.deezer_id}
                                                     onClick={() => play(song, songs)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter' || e.key === ' ') {
+                                                            e.preventDefault();
+                                                            play(song, songs);
+                                                        }
+                                                    }}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    aria-pressed={isThisPlaying}
+                                                    style={{ cursor: 'pointer' }}
                                                 >
-                                                    <span className="track-number" style={{ color: isThisPlaying ? '#5eead4' : undefined }}>
-                                                        {song.track_number || index + 1}
+                                                    <span className="track-number" style={{ color: isThisPlaying ? ACCENT_COLOR : undefined }}>
+                                                        {(song.track_number || index + 1)}
                                                     </span>
                                                     <div className="track-details">
-                                                        <h4 style={{ color: isThisPlaying ? '#5eead4' : undefined }}>{song.title}</h4>
+                                                        <h4 style={{ color: isThisPlaying ? ACCENT_COLOR : undefined }}>{song.title}</h4>
                                                     </div>
                                                     <span className="track-time">{formatDuration(song.duration_ms)}</span>
                                                 </div>

@@ -195,24 +195,28 @@ const Library = () => {
                                     width: '100%'
                                 }}>
                                     
-                                    {activeTab === 'playlists' && (
-                                        <>
-                                            <div
-                                                onClick={() => navigate(`/playlists/likes`)}
-                                                className="library-card"
-                                            >
-                                                <div className="library-card-art library-liked-art">
-                                                    <span style={{ fontSize: '3rem', color: 'white' }}>♥</span>
-                                                </div>
-                                                <div style={{ minWidth: 0 }}>
-                                                    <h3 style={{ margin: '0', color: 'white', fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Me gusta</h3>
-                                                    <p style={{ margin: '5px 0', color: '#9ca3af', fontSize: '0.85rem' }}>Por Ti</p>
-                                                </div>
-                                            </div>
+                                    {activeTab === 'playlists' && (() => {
+                                        const likedPlaylist = playlists.find((pl) => pl.is_liked_songs);
+                                        const otherPlaylists = playlists.filter((pl) => !pl.is_liked_songs);
 
-                                            {playlists
-                                                .filter((pl) => pl.name.toLowerCase() !== 'me gusta')
-                                                .map((pl) => {
+                                        return (
+                                            <>
+                                                {likedPlaylist && (
+                                                    <div
+                                                        onClick={() => navigate(`/playlists/${likedPlaylist.id}`)}
+                                                        className="library-card"
+                                                    >
+                                                        <div className="library-card-art library-liked-art">
+                                                            <span style={{ fontSize: '3rem', color: 'white' }}>♥</span>
+                                                        </div>
+                                                        <div style={{ minWidth: 0 }}>
+                                                            <h3 style={{ margin: '0', color: 'white', fontSize: '1.1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Me gusta</h3>
+                                                            <p style={{ margin: '5px 0', color: '#9ca3af', fontSize: '0.85rem' }}>Por Ti</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {otherPlaylists.map((pl) => {
                                                     const playlistCover = pl.cover_url || pl.image;
                                                     return (
                                                         <div
@@ -255,8 +259,9 @@ const Library = () => {
                                                         </div>
                                                     );
                                                 })}
-                                        </>
-                                    )}
+                                            </>
+                                        );
+                                    })()}
 
                                     {activeTab === 'albums' && (
                                         savedAlbums.length === 0 ? (

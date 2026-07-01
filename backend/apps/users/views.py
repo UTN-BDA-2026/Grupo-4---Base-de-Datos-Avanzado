@@ -2,24 +2,29 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
-from .services import login_user, logout_user, register_play, get_listening_history, get_recently_played
+from .services import login_user, logout_user, register_play, get_listening_history, get_recently_played, get_top_artists_month, get_top_songs_by_user
+from apps.playlists.services import create_liked_songs_playlist
 from .serializers import RegisterSerializer, UserSerializer, ListeningHistorySerializer
 from apps.music.serializers import SongSerializer
+from apps.music.serializers import ArtistSerializer
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
     serializer = RegisterSerializer(data=request.data)
-    
+
     if serializer.is_valid():
-        user = serializer.save() 
-        
+        with transaction.atomic():
+            user = serializer.save()
+            create_liked_songs_playlist(user)
+
         login_result = login_user(
             email=serializer.validated_data['email'],
             password=serializer.validated_data['password']
         )
-        
+
         return Response({
             'access': login_result['access'],
             'refresh': login_result['refresh'],
@@ -103,4 +108,20 @@ def listening_history(request):
 def recently_played(request):
     limit = int(request.query_params.get('limit', 20))
     songs = get_recently_played(request.user, limit=limit)
+    return Response(SongSerializer(songs, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def top_artists_month(request):
+    limit = int(request.query_params.get('limit', 5))
+    artists = get_top_artists_month(request.user, limit=limit)
+    return Response(ArtistSerializer(artists, many=True, context={'request': request}).data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def top_songs_by_user(request):
+    limit = int(request.query_params.get('limit', 10))
+    songs = get_top_songs_by_user(request.user, limit=limit)
     return Response(SongSerializer(songs, many=True).data)

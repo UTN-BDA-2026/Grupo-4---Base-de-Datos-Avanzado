@@ -1,40 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useProfileData } from '../hooks/useProfileData';
+import { usePlayer } from '../context/PlayerContext';
 import Sidebar from '../components/Sidebar';
 import ProfileHeader from '../components/ProfileHeader';
 import ArtistCard from '../components/ArtistCard';
 import TrackRow from '../components/TrackRow';
+import RecentlyPlayedCard from '../components/RecentlyPlayedCard';
 import PlayerBar from '../components/PlayerBar';
 import LogoutModal from '../components/LogoutModal';
 import BackButton from '../components/BackButton';
+import { formatDuration } from '../utils/formatDuration';
 import '../index.css';
 
-const topArtists = [
-    { id: 1, name: 'Soda Stereo', type: 'Artista' },
-    { id: 2, name: 'Charly García', type: 'Artista' },
-    { id: 3, name: 'Daft Punk', type: 'Artista' },
-    { id: 4, name: 'The Weeknd', type: 'Artista' },
-    { id: 5, name: 'Gustavo Cerati', type: 'Artista' },
-];
+const INITIAL_LIMIT = 10;
+const ARTISTS_INITIAL_LIMIT = 12;
 
-const topTracks = [
-    { id: 1, title: 'De Música Ligera', artist: 'Soda Stereo', album: 'Canción Animal', time: '3:32', plays: '142 reproducciones' },
-    { id: 2, title: 'Nos Siguen Pegando Abajo', artist: 'Charly García', album: 'Clics Modernos', time: '3:25', plays: '98 reproducciones' },
-    { id: 3, title: 'Instant Crush', artist: 'Daft Punk', album: 'Random Access Memories', time: '5:38', plays: '87 reproducciones' },
-    { id: 4, title: 'Crimen', artist: 'Gustavo Cerati', album: 'Ahí vamos', time: '3:48', plays: '76 reproducciones' },
-];
+const viewAllBtnStyle = {
+    background: 'none', border: 'none', color: '#5eead4',
+    cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem'
+};
 
 const Profile = () => {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('resumen');
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { topArtists, topTracks, recentlyPlayed, loading, error } = useProfileData();
+    const { play, currentTrack, isPlaying } = usePlayer();
+
+    const [showAllRecent, setShowAllRecent] = useState(false);
+    const [showAllArtists, setShowAllArtists] = useState(false);
+    const [showAllTracks, setShowAllTracks] = useState(false);
 
     const handleLogoutConfirm = async () => {
         await logout();
         navigate('/login');
     };
+
+    const visibleRecent  = showAllRecent  ? recentlyPlayed : recentlyPlayed.slice(0, INITIAL_LIMIT);
+    const visibleArtists = showAllArtists ? topArtists     : topArtists.slice(0, ARTISTS_INITIAL_LIMIT);
+    const visibleTracks  = showAllTracks  ? topTracks      : topTracks.slice(0, INITIAL_LIMIT);
 
     return (
         <div className="saas-container">
@@ -64,52 +71,72 @@ const Profile = () => {
                                 >
                                     Resumen
                                 </button>
-                                <button
-                                    className={`profile-tab ${activeTab === 'playlists' ? 'active' : ''}`}
-                                    onClick={() => setActiveTab('playlists')}
-                                >
-                                    Playlists
-                                </button>
                             </div>
 
-                            <section className="profile-section">
-                                <div className="section-header">
-                                    <h2 className="saas-subtitle" style={{ margin: 0 }}>Tus artistas del mes</h2>
-                                    <a href="#" className="see-all-link">Mostrar todos</a>
-                                </div>
-                                <div className="artists-grid">
-                                    {topArtists.map((artist) => (
-                                        <ArtistCard key={artist.id} name={artist.name} type={artist.type} />
-                                    ))}
-                                </div>
-                            </section>
+                            {error && (
+                                <p className="error-text">No se pudo cargar tu perfil.</p>
+                            )}
 
-                            <section className="profile-section">
-                                <div className="section-header">
-                                    <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones más escuchadas</h2>
-                                    <a href="#" className="see-all-link">Mostrar todas</a>
-                                </div>
-                                <div className="tracks-list">
-                                    {topTracks.map((track, index) => (
-                                        <TrackRow
-                                            key={track.id}
-                                            index={index}
-                                            title={track.title}
-                                            artist={track.artist}
-                                            album={track.album}
-                                            time={track.time}
-                                            plays={track.plays}
-                                        />
-                                    ))}
-                                </div>
-                            </section>
+                            {loading && <p>Cargando tu perfil...</p>}
 
+                            {topArtists.length > 0 && (
+                                <section style={{ marginBottom: '2.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                        <h2 className="saas-subtitle" style={{ margin: 0 }}>Tus artistas del mes</h2>
+                                        {topArtists.length > ARTISTS_INITIAL_LIMIT && (
+                                            <button onClick={() => setShowAllArtists(!showAllArtists)} style={viewAllBtnStyle}>
+                                                {showAllArtists ? 'Ver menos' : 'Ver todo'}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="artists-grid">
+                                        {visibleArtists.map((artist) => (
+                                            <ArtistCard
+                                                key={artist.deezer_id}
+                                                name={artist.name}
+                                                followers={artist.followers}
+                                                image={artist.image_url}
+                                                type="Artista"
+                                                onClick={() => navigate(`/artist/${artist.deezer_id}`)}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {topTracks.length > 0 && (
+                                <section className="profile-section">
+                                    <div className="section-header">
+                                        <h2 className="saas-subtitle" style={{ margin: 0 }}>Tus canciones más escuchadas</h2>
+                                        {topTracks.length > INITIAL_LIMIT && (
+                                            <button onClick={() => setShowAllTracks(!showAllTracks)} style={viewAllBtnStyle}>
+                                                {showAllTracks ? 'Ver menos' : 'Mostrar todas'}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="tracks-list">
+                                        {visibleTracks.map((track, index) => (
+                                            <TrackRow
+                                                key={track.id}
+                                                index={index}
+                                                title={track.title}
+                                                artist={track.artist?.name}
+                                                album={track.album?.name}
+                                                coverUrl={track.album?.cover_url}
+                                                time={formatDuration(track.duration_ms)}
+                                                isPlaying={isPlaying && currentTrack?.deezer_id === track.deezer_id}
+                                                onClick={() => play(track, topTracks)}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     </div>
                 </main>
             </div>
 
-            <PlayerBar track={{ title: 'De Música Ligera', artist: 'Soda Stereo' }} />
+            <PlayerBar track={currentTrack} />
 
             <LogoutModal
                 isOpen={isLogoutModalOpen}

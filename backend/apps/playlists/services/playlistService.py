@@ -24,6 +24,15 @@ def get_playlist_detail(playlist_id: int, user=None) -> Playlist | None:
 
     return playlist
 
+def create_liked_songs_playlist(user) -> Playlist:
+    return Playlist.objects.create(
+        name='Me gusta',
+        description='Tus canciones favoritas',
+        is_public=False,
+        is_liked_songs=True,
+        user=user,
+    )
+
 @transaction.atomic
 def create_playlist(user, data: dict) -> Playlist:
     return Playlist.objects.create(

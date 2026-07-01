@@ -6,4 +6,5 @@ from .playlistService import (
     remove_song_from_playlist,
     delete_playlist,
     update_playlist,
+    create_liked_songs_playlist,
 )

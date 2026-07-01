@@ -6,6 +6,7 @@ class Playlist(models.Model):
     description = models.TextField(blank=True)
     cover_url   = models.URLField(blank=True)
     is_public   = models.BooleanField(default=False)
+    is_liked_songs = models.BooleanField(default=False)
     
     user        = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
@@ -29,6 +30,14 @@ class Playlist(models.Model):
             models.Index(fields=['user', 'is_public']),   
             models.Index(fields=['user', 'updated_at']),  
             models.Index(fields=['name']),                
+        ]
+        constraints = [
+            # Un solo "Me gusta" por usuario
+            models.UniqueConstraint(
+                fields=['user'],
+                condition=models.Q(is_liked_songs=True),
+                name='unique_liked_songs_playlist_per_user'
+            )
         ]
     
     def __str__(self):

@@ -5,6 +5,9 @@ import { usePlayer } from '../context/PlayerContext';
 import AddToPlaylistModal from './AddToPlaylistModal';
 import FollowButton from './FollowedButton';
 import Toast from './Toast';
+import TrackRow from './TrackRow';
+import NowPlayingIndicator from './NowPlayingIndicator';
+import { ACCENT_COLOR } from '../constants/theme';
 
 const SearchResults = ({ results, activeFilter, query, navigate }) => {
     const {
@@ -53,7 +56,6 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
         e.stopPropagation();
         handleToggleFollowArtist(artist.deezer_id, isArtistFollowed(artist));
     };
-
 
     const handleItemClick = (item, redirectUrl) => {
         if (item.type === 'song') {
@@ -134,10 +136,13 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                             width: '48px', height: '48px', flexShrink: 0,
                                             borderRadius: isRound ? '50%' : '6px',
                                             background: imageUrl,
-                                        }} />
+                                            position: 'relative',
+                                        }}>
+                                            {thisPlaying && <NowPlayingIndicator size={16} />}
+                                        </div>
 
                                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ color: thisPlaying ? '#5eead4' : 'white', fontWeight: '500', fontSize: '1rem' }}>{title}</span>
+                                            <span style={{ color: thisPlaying ? ACCENT_COLOR : 'white', fontWeight: '500', fontSize: '1rem' }}>{title}</span>
                                             <span style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: '4px' }}>{subtitle}</span>
                                         </div>
 
@@ -202,29 +207,19 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                 {activeFilter === 'songs' && results.songs.length > 0 && (
                     <section>
                         <h2 className="saas-subtitle" style={{ margin: '0 0 0.5rem 0', color: 'white' }}>Canciones</h2>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {results.songs.map((song) => {
-                                const thisPlaying = isSongPlaying(song);
-                                return (
-                                    <div
-                                        key={song.deezer_id}
-                                        style={{
-                                            display: 'grid', gridTemplateColumns: '48px 1fr 1fr auto 60px', alignItems: 'center', gap: '14px',
-                                            padding: '10px 15px',
-                                            backgroundColor: thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer', border: '1px solid transparent', transition: 'all 0.2s'
-                                        }}
-                                        onClick={() => play(song, results.songs)}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.06)'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = thisPlaying ? 'rgba(94,234,212,0.08)' : 'rgba(255, 255, 255, 0.02)'}
-                                    >
-                                        <div style={{ width: '48px', height: '48px', borderRadius: '6px', flexShrink: 0, background: song.album?.cover_url ? `url(${song.album.cover_url}) center/cover` : 'rgba(255, 255, 255, 0.08)' }} />
-                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                            <span style={{ color: thisPlaying ? '#5eead4' : 'white', fontWeight: '500' }}>{song.title}</span>
-                                            <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>{song.artist?.name}</span>
-                                        </div>
-                                        <span style={{ color: '#9ca3af', fontSize: '0.9rem' }}>{song.album?.name || 'Sencillo'}</span>
+                        <div className="tracks-list">
+                            {results.songs.map((song, index) => (
+                                <TrackRow
+                                    key={song.deezer_id}
+                                    index={index}
+                                    title={song.title}
+                                    artist={song.artist?.name}
+                                    album={song.album?.name || 'Sencillo'}
+                                    coverUrl={song.album?.cover_url}
+                                    time={formatDuration(song.duration_ms)}
+                                    isPlaying={isSongPlaying(song)}
+                                    onClick={() => play(song, results.songs)}
+                                    actions={
                                         <button
                                             onClick={(e) => handleAddClick(e, { ...song, type: 'song' })}
                                             style={{
@@ -237,10 +232,9 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                         >
                                             ⊕
                                         </button>
-                                        <span style={{ color: '#9ca3af', fontSize: '0.9rem', textAlign: 'right' }}>{formatDuration(song.duration_ms)}</span>
-                                    </div>
-                                );
-                            })}
+                                    }
+                                />
+                            ))}
                         </div>
                     </section>
                 )}

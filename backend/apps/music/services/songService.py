@@ -113,7 +113,37 @@ def search_songs(query: str, limit: int = 20) -> list:
     return local_songs[:limit]
 
 def get_top_songs(limit: int = 50) -> list:
-    return list(Song.objects.select_related('artist', 'album').order_by('-popularity')[:limit])
+    local_songs = list(Song.objects.select_related('artist', 'album').order_by('-popularity')[:limit])
+    if len(local_songs) >= limit:
+        return local_songs
+
+    cache_key = f'home:top_songs:{limit}'
+    cached = cache.get(cache_key)
+    if cached:
+        return list(Song.objects.select_related('artist', 'album').filter(id__in=json.loads(cached)))
+
+    try:
+        chart_data = deezer.get_top_tracks(limit=limit)
+        saved_songs = []
+        for track in chart_data:
+            with transaction.atomic():
+                artist, _ = Artist.objects.get_or_create(
+                    deezer_id=str(track['artist']['id']),
+                    defaults={'name': track['artist']['name'], 'image_url': track['artist'].get('picture_medium', '')}
+                )
+                album, _ = Album.objects.get_or_create(
+                    deezer_id=str(track['album']['id']),
+                    defaults={'name': track['album']['title'], 'cover_url': track['album'].get('cover_medium', ''), 'artist': artist}
+                )
+                saved_songs.append(_save_song(track, artist, album))
+
+        if saved_songs:
+            cache.set(cache_key, json.dumps([s.id for s in saved_songs]), timeout=600)
+            return saved_songs[:limit]
+    except Exception:
+        logger.exception("Error Deezer top tracks, usando respaldo local")
+
+    return local_songs
 
 def get_song_detail(deezer_id: str) -> Song | None:
     try:
@@ -133,16 +163,23 @@ def get_artist_detail(deezer_id: str) -> Artist | None:
     return _get_or_fetch_artist(deezer_id)
 
 def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
-    local_songs = list(Song.objects.select_related('artist', 'album').filter(artist__deezer_id=deezer_id).order_by('-popularity')[:limit])
-    if local_songs: return local_songs
+    local_songs = list(
+        Song.objects
+        .select_related('artist', 'album')
+        .filter(artist__deezer_id=deezer_id)
+        .order_by('-popularity')[:limit]
+    )
+    if local_songs and len(local_songs) >= limit:  
+        return local_songs
 
     artist = _get_or_fetch_artist(deezer_id)
-    if not artist: return []
+    if not artist:
+        return local_songs if local_songs else []  
 
     try:
         tracks_from_api = deezer.get_artist_top_tracks(deezer_id, limit=limit)
         saved_songs, album_cache = [], {}
-        
+
         for track in tracks_from_api:
             album_id = str(track.get('album', {}).get('id'))
             if album_id not in album_cache:
@@ -152,17 +189,17 @@ def get_songs_by_artist(deezer_id: str, limit: int = 20) -> list:
                         album = _save_album(deezer.get_album(album_id), artist)
                     except Exception:
                         album, _ = Album.objects.get_or_create(
-                            deezer_id=album_id, 
+                            deezer_id=album_id,
                             defaults={'name': track['album'].get('title', ''), 'cover_url': track['album'].get('cover_medium', ''), 'artist': artist}
                         )
                 album_cache[album_id] = album
-            
+
             with transaction.atomic():
                 saved_songs.append(_save_song(track, artist, album_cache[album_id]))
         return saved_songs[:limit]
     except Exception as e:
         logger.error(f"Error top tracks del artista {deezer_id}: {e}")
-        return []
+        return local_songs if local_songs else []   # 👈 fallback también acá
 
 ALBUM_TYPE_FILTERS = {
     'album': ['album'],

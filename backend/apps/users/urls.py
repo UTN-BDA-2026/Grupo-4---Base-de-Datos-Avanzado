@@ -9,4 +9,6 @@ urlpatterns = [
     path('history/',          views.listening_history,  name='history'),
     path('history/add/',      views.add_to_history,     name='add-history'),
     path('recently-played/',  views.recently_played,    name='recently-played'),
+    path('artists/top-month/', views.top_artists_month, name='top-artists-month'),
+    path('songs/top/', views.top_songs_by_user, name='top-songs-by-user'),
 ]

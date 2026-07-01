@@ -14,11 +14,12 @@ import '../index.css';
 const Home = () => {
     const navigate = useNavigate();
     const { logout, user } = useAuth();
-    const { recentlyPlayed, topArtists, topAlbums, loading } = useHomeData();
+    const { topArtists, topAlbums, topSongs, recentlyPlayed, loading } = useHomeData();
     const { play, currentTrack, isPlaying } = usePlayer();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const [showAllRecent, setShowAllRecent] = useState(false);
+    const [showAllSongs, setShowAllSongs] = useState(false);
     const [showAllArtists, setShowAllArtists] = useState(false);
     const [showAllAlbums, setShowAllAlbums] = useState(false);
 
@@ -29,9 +30,10 @@ const Home = () => {
         navigate('/login');
     };
 
-    const visibleRecent  = showAllRecent   ? recentlyPlayed : recentlyPlayed.slice(0, INITIAL_LIMIT);
-    const visibleArtists = showAllArtists  ? topArtists     : topArtists.slice(0, INITIAL_LIMIT);
-    const visibleAlbums  = showAllAlbums   ? topAlbums      : topAlbums.slice(0, INITIAL_LIMIT);
+    const visibleRecent  = showAllRecent  ? recentlyPlayed : recentlyPlayed.slice(0, INITIAL_LIMIT);
+    const visibleSongs   = showAllSongs   ? topSongs       : topSongs.slice(0, INITIAL_LIMIT);
+    const visibleArtists = showAllArtists ? topArtists     : topArtists.slice(0, INITIAL_LIMIT);
+    const visibleAlbums  = showAllAlbums  ? topAlbums      : topAlbums.slice(0, INITIAL_LIMIT);
 
     const viewAllBtnStyle = {
         background: 'none', border: 'none', color: '#5eead4',
@@ -72,6 +74,31 @@ const Home = () => {
                                                 cover={song.album?.cover_url}
                                                 isPlaying={isPlaying && currentTrack?.deezer_id === song.deezer_id}
                                                 onClick={() => play(song, recentlyPlayed)}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
+
+                            {topSongs.length > 0 && (
+                                <section style={{ marginBottom: '2.5rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                                        <h2 className="saas-subtitle" style={{ margin: 0 }}>Top Canciones</h2>
+                                        {topSongs.length > INITIAL_LIMIT && (
+                                            <button onClick={() => setShowAllSongs(!showAllSongs)} style={viewAllBtnStyle}>
+                                                {showAllSongs ? 'Ver menos' : 'Ver todo'}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="compact-grid">
+                                        {visibleSongs.map((song) => (
+                                            <RecentlyPlayedCard
+                                                key={song.deezer_id}
+                                                title={song.title}
+                                                artist={song.artist?.name}
+                                                cover={song.album?.cover_url}
+                                                isPlaying={isPlaying && currentTrack?.deezer_id === song.deezer_id}
+                                                onClick={() => play(song, topSongs)}
                                             />
                                         ))}
                                     </div>

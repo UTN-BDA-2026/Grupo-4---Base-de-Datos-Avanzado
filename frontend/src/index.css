@@ -36,6 +36,16 @@ body {
     flex-wrap: wrap; 
 }
 
+.now-playing-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    border-radius: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* --- PANELES GLASSMORPHISM --- */
 .info-panel, .form-panel {
     background: rgba(18, 18, 18, 0.35); 
@@ -926,6 +936,13 @@ body {
     margin-right: 16px;
     flex-shrink: 0;
 }
+
+.track-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 
 .album-type-tag {
     font-size: 11px;

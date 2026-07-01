@@ -7,15 +7,8 @@ import Sidebar from '../components/Sidebar';
 import LogoutModal from '../components/LogoutModal';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
+import { formatDuration } from '../utils/formatDuration';
 import '../index.css';
-
-const formatDuration = (ms) => {
-    if (!ms) return '—';
-    const totalSeconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
 
 const PlaylistDetail = () => {
     const { id } = useParams();
@@ -63,6 +56,7 @@ const PlaylistDetail = () => {
         </div>
     );
 
+    const isLikedSongs = !!playlist.is_liked_songs;
     const playlistCover = playlist.image || playlist.cover_url;
     const firstPlaylistSong = playlist.songs?.[0]?.song;
 
@@ -111,9 +105,15 @@ const PlaylistDetail = () => {
 
                             {/* CABECERA */}
                             <div className="profile-hero detail-hero playlist-detail-hero">
-                                <div className="playlist-detail-cover" style={{
-                                    background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
-                                }} />
+                                {isLikedSongs ? (
+                                    <div className="playlist-detail-cover library-liked-art" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <span style={{ fontSize: '4rem', color: 'white' }}>♥</span>
+                                    </div>
+                                ) : (
+                                    <div className="playlist-detail-cover" style={{
+                                        background: playlistCover ? `url(${playlistCover}) center/cover` : 'linear-gradient(135deg, #5eead4, #8b5cf6)'
+                                    }} />
+                                )}
 
                                 <div className="playlist-detail-info">
                                     <span style={{ color: '#5eead4', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '1px' }}>
@@ -161,12 +161,16 @@ const PlaylistDetail = () => {
                                 playDisabled={!playlist.songs || playlist.songs.length === 0}
                                 shuffleDisabled={!playlist.songs || playlist.songs.length === 0}
                             >
-                                <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
-                                    Editar
-                                </button>
-                                <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
-                                    Eliminar
-                                </button>
+                                {!isLikedSongs && (
+                                    <>
+                                        <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
+                                            Editar
+                                        </button>
+                                        <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
+                                            Eliminar
+                                        </button>
+                                    </>
+                                )}
                             </DetailPlaybackActions>
 
                             {/* TABLA DE CANCIONES */}

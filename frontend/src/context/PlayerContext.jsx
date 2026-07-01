@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { shuffleArray, sameSongList } from '../utils/playerHelpers';
+import { addToHistory } from '../services/musicService'; 
 
 const PlayerContext = createContext(null);
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -42,6 +43,12 @@ export const PlayerProvider = ({ children }) => {
                 await audio.play();
                 setCurrentTrack(song);
                 setIsPlaying(true);
+
+                // 👇 registra la reproducción en el backend
+                addToHistory(song.id ?? song.deezer_id).catch((err) => {
+                    console.warn('No se pudo registrar la reproducción:', err);
+                });
+
             } catch (err) {
                 console.error("Error al reproducir:", err);
             } finally {
