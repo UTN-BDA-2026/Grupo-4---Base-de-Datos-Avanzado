@@ -72,17 +72,15 @@ const PlaylistDetail = () => {
 
     const handlePlayPlaylist = () => {
         if (!firstPlaylistSong) return;
-        setShuffleMode(false);
-        // play() ya togglea pausa/play solo si es la misma canción que está sonando
-        play(firstPlaylistSong);
+        const songs = (playlist.songs || []).filter((item) => item.song).map((item) => item.song);
+        play(firstPlaylistSong, songs);
     };
 
     const handleShufflePlaylist = () => {
-        const songs = (playlist.songs || []).filter((item) => item.song);
+        const songs = (playlist.songs || []).filter((item) => item.song).map((item) => item.song);
         if (songs.length === 0) return;
-        const randomSong = songs[Math.floor(Math.random() * songs.length)].song;
-        setShuffleMode(true);
-        play(randomSong);
+        const randomSong = songs[Math.floor(Math.random() * songs.length)];
+        play(randomSong, songs, { shuffle: true });
     };
 
     return (
@@ -197,7 +195,10 @@ const PlaylistDetail = () => {
                                         return (
                                             <tr
                                                 key={ps.id}
-                                                onClick={() => play(ps.song)}
+                                                onClick={() => {
+                                                    const songs = (playlist.songs || []).filter((item) => item.song).map((item) => item.song);
+                                                    play(ps.song, songs);
+                                                }}
                                                 style={{
                                                     borderBottom: '1px solid rgba(255,255,255,0.03)',
                                                     transition: 'background 0.2s',

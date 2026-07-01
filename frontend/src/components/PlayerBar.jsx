@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePlayer } from '../context/PlayerContext';
 
 const VolumeControl = () => {
-    const [volume, setVolume] = useState(72);
+    const { volume, isMuted, setVolume, toggleMute } = usePlayer();
     const [isVolumeOpen, setIsVolumeOpen] = useState(false);
     const volumeRef = useRef(null);
 
@@ -23,6 +23,8 @@ const VolumeControl = () => {
         setVolume(Number(event.target.value));
     };
 
+    const displayLevel = isMuted ? 0 : volume;
+
     return (
         <div className="volume-control" ref={volumeRef}>
             <div className={`volume-popover ${isVolumeOpen ? 'open' : ''}`} aria-hidden={!isVolumeOpen}>
@@ -31,9 +33,9 @@ const VolumeControl = () => {
                     type="range"
                     min="0"
                     max="100"
-                    value={volume}
+                    value={displayLevel}
                     onChange={handleVolumeChange}
-                    style={{ '--volume-level': `${volume}%` }}
+                    style={{ '--volume-level': `${displayLevel}%` }}
                     aria-label="Volumen"
                     tabIndex={isVolumeOpen ? 0 : -1}
                 />
@@ -42,10 +44,12 @@ const VolumeControl = () => {
             <button
                 className={`icon-btn volume-btn ${isVolumeOpen ? 'active' : ''}`}
                 onClick={() => setIsVolumeOpen((prev) => !prev)}
-                aria-label={volume === 0 ? 'Volumen silenciado' : 'Control de volumen'}
+                onDoubleClick={toggleMute}
+                aria-label={displayLevel === 0 ? 'Volumen silenciado' : 'Control de volumen'}
                 aria-expanded={isVolumeOpen}
+                title={isMuted ? 'Silenciado (doble click para reactivar)' : 'Doble click para silenciar'}
             >
-                {volume === 0 ? (
+                {displayLevel === 0 ? (
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
                         <line x1="23" y1="9" x2="17" y2="15"></line>
@@ -71,24 +75,17 @@ const formatTime = (seconds) => {
 };
 
 const PlayerBar = () => {
-    const { currentTrack, isPlaying, progress, duration, togglePlay, seek } = usePlayer();
-    const [repeat, setRepeat] = useState(0);
-    const [shuffle, setShuffle] = useState(false);
-
-    const handleRepeat = () => {
-        setRepeat((prev) => (prev + 1) % 3);
-    };
-
-    const handleShuffle = () => {
-        setShuffle((prev) => !prev);
-    };
+    const {
+        currentTrack, isPlaying, progress, duration,
+        togglePlay, seek, shuffle, repeatMode,
+        next, previous, toggleShuffle, toggleRepeat
+    } = usePlayer();
 
     const elapsed = (progress / 100) * duration;
     const remaining = duration - elapsed;
 
     return (
         <div className="saas-player-capsule">
-            {/* Información de la pista */}
             <div className="player-track">
                 <div
                     className="track-art"
@@ -104,40 +101,33 @@ const PlayerBar = () => {
                 </div>
             </div>
 
-            {/* Controles centrales */}
             <div className="player-controls">
-                {/* Repetición (Loop) */}
+                {/* Repetición: off -> repetir lista -> repetir canción actual */}
                 <button
-                    className={`icon-btn repeat-btn ${repeat !== 0 ? 'active' : ''}`}
-                    onClick={handleRepeat}
+                    className={`icon-btn repeat-btn ${repeatMode !== 'off' ? 'active' : ''}`}
+                    onClick={toggleRepeat}
+                    aria-label={`Repetir: ${repeatMode}`}
+                    title={repeatMode === 'one' ? 'Repetir canción' : repeatMode === 'all' ? 'Repetir lista' : 'Repetir desactivado'}
                 >
-                    {repeat === 2 ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="17 1 21 5 17 9"></polyline>
-                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                            <polyline points="7 23 3 19 7 15"></polyline>
-                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="17 1 21 5 17 9"></polyline>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                        <polyline points="7 23 3 19 7 15"></polyline>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        {repeatMode === 'one' && (
                             <text x="12" y="16" fontFamily="sans-serif" fontSize="8" fontWeight="bold" textAnchor="middle" stroke="none" fill="currentColor">1</text>
-                        </svg>
-                    ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="17 1 21 5 17 9"></polyline>
-                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                            <polyline points="7 23 3 19 7 15"></polyline>
-                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-                        </svg>
-                    )}
+                        )}
+                    </svg>
                 </button>
 
-                {/* Previous */}
-                <button className="icon-btn">
+                {/* Previous: reinicia la canción si pasaron >3s, si no va a la anterior de la queue */}
+                <button className="icon-btn" onClick={previous} aria-label="Anterior">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="19 20 9 12 19 4 19 20"></polygon>
                         <line x1="5" y1="19" x2="5" y2="5"></line>
                     </svg>
                 </button>
 
-                {/* Play / Pause */}
                 <button
                     className="play-btn"
                     onClick={togglePlay}
@@ -155,18 +145,19 @@ const PlayerBar = () => {
                     )}
                 </button>
 
-                {/* Next */}
-                <button className="icon-btn">
+                {/* Next: avanza en la queue, respeta repeatMode 'all' al final */}
+                <button className="icon-btn" onClick={next} aria-label="Siguiente">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="5 4 15 12 5 20 5 4"></polygon>
                         <line x1="19" y1="5" x2="19" y2="19"></line>
                     </svg>
                 </button>
 
-                {/* Aleatorio (Shuffle) */}
+                {/* Aleatorio: mezcla de verdad el orden de reproducción de la queue */}
                 <button
                     className={`icon-btn shuffle-btn ${shuffle ? 'active' : ''}`}
-                    onClick={handleShuffle}
+                    onClick={toggleShuffle}
+                    aria-label={shuffle ? 'Desactivar aleatorio' : 'Activar aleatorio'}
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="16 3 21 3 21 8"></polyline>
@@ -178,7 +169,6 @@ const PlayerBar = () => {
                 </button>
             </div>
 
-            {/* Línea de tiempo */}
             <div className="player-timeline">
                 <span>{formatTime(elapsed)}</span>
                 <div
@@ -190,10 +180,7 @@ const PlayerBar = () => {
                     }}
                     style={{ cursor: 'pointer' }}
                 >
-                    <div
-                        className="timeline-progress"
-                        style={{ width: `${progress}%` }}
-                    />
+                    <div className="timeline-progress" style={{ width: `${progress}%` }} />
                 </div>
                 <span>-{formatTime(remaining)}</span>
                 <VolumeControl />

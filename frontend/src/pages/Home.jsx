@@ -71,7 +71,7 @@ const Home = () => {
                                                 artist={song.artist?.name}
                                                 cover={song.album?.cover_url}
                                                 isPlaying={isPlaying && currentTrack?.deezer_id === song.deezer_id}
-                                                onClick={() => play(song)}
+                                                onClick={() => play(song, recentlyPlayed)}
                                             />
                                         ))}
                                     </div>
