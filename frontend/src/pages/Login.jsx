@@ -62,13 +62,6 @@ const Login = () => {
                                 <input type="password" name="password" className="custom-input" onChange={handleChange} required />
                             </div>
                             
-                            <div className="options-row">
-                                <label className="remember-me">
-                                    <input type="checkbox" style={{ accentColor: '#5eead4' }}/> Recordarme
-                                </label>
-                                <a href="#" className="recover-link">¿Olvidaste tu clave?</a>
-                            </div>
-
                             <button type="submit" className="submit-btn">Entrar →</button>
                             
                             <div className="login-link">
