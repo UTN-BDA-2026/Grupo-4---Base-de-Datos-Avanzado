@@ -44,7 +44,7 @@ const Login = () => {
                         <div className="music-icon-box">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
                         </div>
-                        <h2>Login</h2>
+                        <h2>Iniciar sesión</h2>
                         
                         {errorMsg && (
                             <div style={{ color: '#ff6b6b', backgroundColor: '#2b1515', padding: '10px', borderRadius: '5px', marginBottom: '15px', fontSize: '14px' }}>
