@@ -284,6 +284,7 @@ dependencies = [
     { name = "pymysql" },
     { name = "python-decouple" },
     { name = "python-dotenv" },
+    { name = "redis" },
     { name = "requests" },
     { name = "spotipy" },
 ]
@@ -299,6 +300,7 @@ requires-dist = [
     { name = "pymysql", specifier = ">=1.1.3" },
     { name = "python-decouple", specifier = ">=3.8" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "redis", specifier = ">=7.4.0" },
     { name = "requests", specifier = ">=2.33.1" },
     { name = "spotipy", specifier = ">=2.26.0" },
 ]
