@@ -5,7 +5,7 @@ const formatFollowers = (count) => {
     return `${count} seguidores`;
 };
 
-const ArtistCard = ({ name, followers, image, onClick }) => {
+const ArtistCard = ({ name, followers, image, onClick, showFollowers = true }) => {
     return (
         <div className="artist-card" onClick={onClick}>
             <div
@@ -13,7 +13,9 @@ const ArtistCard = ({ name, followers, image, onClick }) => {
                 style={image ? { backgroundImage: `url(${image})` } : undefined}
             ></div>
             <h4>{name}</h4>
-            <p>{formatFollowers(followers)}</p>
+            {showFollowers && followers !== undefined && (
+                <p>{formatFollowers(followers)}</p>
+            )}
         </div>
     );
 };

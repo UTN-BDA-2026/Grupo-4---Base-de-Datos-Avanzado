@@ -2,9 +2,12 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbumDetail } from '../hooks/useAlbumDetail';
 import { usePlayer } from '../context/PlayerContext';
+import { useLibraryActions } from '../hooks/useLibraryActions'; // Importado
 import Sidebar from '../components/Sidebar';
 import BackButton from '../components/BackButton';
 import DetailPlaybackActions from '../components/DetailPlaybackActions';
+import AddToPlaylistModal from '../components/AddToPlaylistModal'; // Importado
+import Toast from '../components/Toast'; // Importado
 import { formatDuration } from '../utils/formatDuration';
 import { ACCENT_COLOR } from '../constants/theme';
 import '../index.css';
@@ -19,6 +22,22 @@ const AlbumDetail = () => {
     const { user } = useAuth();
     const { album, songs, loading, error } = useAlbumDetail(deezerId);
     const { play, currentTrack, isPlaying } = usePlayer();
+    
+    // Hooks de biblioteca
+    const {
+        playlists,
+        modal,
+        loading: libraryLoading,
+        toast,
+        openModal,
+        closeModal,
+        addSongToPlaylist,
+    } = useLibraryActions();
+
+    const handleAddClick = (e, song) => {
+        e.stopPropagation();
+        openModal({ id: song.id, title: song.title });
+    };
 
     if (loading) {
         return (
@@ -72,6 +91,18 @@ const AlbumDetail = () => {
         <div className="saas-container">
             <div className="app-background"></div>
             <div className="glass-overlay"></div>
+            
+            <Toast toast={toast} />
+
+            {modal.open && (
+                <AddToPlaylistModal
+                    playlists={playlists}
+                    item={modal.item}
+                    loading={libraryLoading}
+                    onSelect={addSongToPlaylist}
+                    onClose={closeModal}
+                />
+            )}
 
             <div className="saas-workspace">
                 <Sidebar user={user} />
@@ -121,6 +152,7 @@ const AlbumDetail = () => {
                                     <div className="section-header">
                                         <h2 className="saas-subtitle" style={{ margin: 0 }}>Canciones</h2>
                                     </div>
+                                    
                                     <div className="tracks-list">
                                         {songs.map((song, index) => {
                                             const isThisPlaying = isPlaying && currentTrack?.deezer_id === song.deezer_id;
@@ -129,31 +161,46 @@ const AlbumDetail = () => {
                                                     className="track-item"
                                                     key={song.deezer_id}
                                                     onClick={() => play(song, songs)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter' || e.key === ' ') {
-                                                            e.preventDefault();
-                                                            play(song, songs);
-                                                        }
-                                                    }}
                                                     role="button"
                                                     tabIndex={0}
-                                                    aria-pressed={isThisPlaying}
-                                                    style={{ cursor: 'pointer' }}
+                                                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                                                 >
-                                                    <span className="track-number" style={{ color: isThisPlaying ? ACCENT_COLOR : undefined }}>
+                                                    <span className="track-number" style={{ color: isThisPlaying ? ACCENT_COLOR : undefined, minWidth: '40px' }}>
                                                         {(song.track_number || index + 1)}
                                                     </span>
-                                                    <div className="track-details">
-                                                        <h4 style={{ color: isThisPlaying ? ACCENT_COLOR : undefined }}>{song.title}</h4>
+
+                                                    <div className="track-details" style={{ flex: 1 }}>
+                                                        <h4 style={{ color: isThisPlaying ? ACCENT_COLOR : undefined, margin: 0 }}>
+                                                            {song.title}
+                                                        </h4>
                                                     </div>
+
                                                     <span className="track-time">{formatDuration(song.duration_ms)}</span>
+
+                                                    <button
+                                                        onClick={(e) => handleAddClick(e, song)}
+                                                        style={{
+                                                            background: 'transparent', 
+                                                            color: '#9ca3af', 
+                                                            border: 'none',
+                                                            fontSize: '1.4rem', 
+                                                            cursor: 'pointer', 
+                                                            padding: '0 20px', 
+                                                            transition: 'color 0.2s',
+                                                            display: 'flex',
+                                                            alignItems: 'center'
+                                                        }}
+                                                        onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
+                                                        onMouseLeave={(e) => e.currentTarget.style.color = '#9ca3af'}
+                                                    >
+                                                        ⊕
+                                                    </button>
                                                 </div>
                                             );
                                         })}
                                     </div>
                                 </section>
                             )}
-
                         </div>
                     </div>
                 </main>

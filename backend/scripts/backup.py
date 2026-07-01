@@ -21,6 +21,13 @@ def create_backup():
         "-h", DB_CONFIG["host"],
         "-P", str(DB_CONFIG["port"]),
         "-u", DB_CONFIG["user"],
+        "--single-transaction",
+        "--routines",
+        "--triggers",
+        "--events",
+        "--no-tablespaces",
+        "--default-character-set=utf8mb4",
+        "--set-gtid-purged=OFF",
         DB_CONFIG["name"],
     ]
 
@@ -52,6 +59,7 @@ def create_backup():
         print("\nError al generar el backup:\n")
         print(result.stderr)
         logger.error(result.stderr)
+        backup_file.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

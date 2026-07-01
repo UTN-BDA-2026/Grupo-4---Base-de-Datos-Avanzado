@@ -94,7 +94,6 @@ const Profile = () => {
                                             <ArtistCard
                                                 key={artist.deezer_id}
                                                 name={artist.name}
-                                                followers={artist.followers}
                                                 image={artist.image_url}
                                                 type="Artista"
                                                 onClick={() => navigate(`/artist/${artist.deezer_id}`)}
