@@ -113,7 +113,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                                     title = item.name;
                                     subtitle = `Playlist • ${item.total_songs || 0} canciones`;
                                     imageUrl = item.cover_url ? `url(${item.cover_url}) center/cover` : 'linear-gradient(135deg, #3b82f6, #8b5cf6)';
-                                    redirectUrl = `/playlist/${item.id}`;
+                                    redirectUrl = `/playlists/${item.id}`;
                                 }
 
                                 const thisPlaying = item.type === 'song' && isSongPlaying(item);
@@ -302,7 +302,7 @@ const SearchResults = ({ results, activeFilter, query, navigate }) => {
                             {results.playlists.map((playlist) => (
                                 <div
                                     key={playlist.id}
-                                    onClick={() => navigate(`/playlist/${playlist.id}`)}
+                                    onClick={() => navigate(`/playlists/${playlist.id}`)}
                                     style={{ backgroundColor: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', padding: '15px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer' }}
                                 >
                                     <div style={{ width: '100px', height: '100px', borderRadius: '8px', margin: '0 auto 12px auto', background: playlist.cover_url ? `url(${playlist.cover_url}) center/cover` : 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }} />

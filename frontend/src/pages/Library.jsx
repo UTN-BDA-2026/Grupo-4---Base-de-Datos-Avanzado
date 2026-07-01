@@ -34,6 +34,7 @@ const Library = () => {
     const [playlistMenuOpen, setPlaylistMenuOpen] = useState(null);
     const [playlistToEdit, setPlaylistToEdit] = useState(null);
     const [editName, setEditName] = useState('');
+    const [editIsPublic, setEditIsPublic] = useState(false);
     const [localToast, setLocalToast] = useState('');
 
     useEffect(() => {
@@ -93,8 +94,11 @@ const Library = () => {
 
     const startEditPlaylist = (e, playlist) => {
         e.stopPropagation();
+
         setPlaylistToEdit(playlist);
         setEditName(playlist.name);
+        setEditIsPublic(playlist.is_public);
+
         setPlaylistMenuOpen(null);
     };
 
@@ -103,7 +107,13 @@ const Library = () => {
         if (!playlistToEdit || !editName.trim()) return;
 
         try {
-            await updatePlaylistService(playlistToEdit.id, { name: editName.trim() });
+            await updatePlaylistService(
+                playlistToEdit.id,
+                {
+                    name: editName.trim(),
+                    is_public: editIsPublic
+                }
+            );
             setPlaylistToEdit(null);
             setEditName('');
             fetchPlaylists();
@@ -386,6 +396,21 @@ const Library = () => {
                                 autoFocus
                                 style={{ width: '100%', boxSizing: 'border-box' }}
                             />
+                            <div style={{ marginTop: '1rem' }}>
+                                <label style={{ color: 'white' }}>
+                                    Visibilidad
+                                </label>
+
+                                <select
+                                    className="custom-input"
+                                    value={editIsPublic ? 'public' : 'private'}
+                                    onChange={(e) => setEditIsPublic(e.target.value === 'public')}
+                                    style={{ width: '100%', marginTop: '8px' }}
+                                >
+                                    <option value="private">Privada</option>
+                                    <option value="public">Pública</option>
+                                </select>
+                            </div>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '1.5rem' }}>
                                 <button type="button" onClick={() => setPlaylistToEdit(null)} style={{ padding: '10px 20px', background: 'transparent', color: '#9ca3af', border: 'none', cursor: 'pointer' }}>Cancelar</button>
                                 <button type="submit" className="submit-btn" style={{ width: 'auto', margin: 0 }}>Guardar</button>

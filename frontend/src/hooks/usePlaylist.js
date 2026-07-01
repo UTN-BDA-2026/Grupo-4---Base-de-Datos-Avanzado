@@ -36,9 +36,9 @@ export const usePlaylist = (id) => {
         fetchPlaylist();
     }, [fetchPlaylist]);
 
-    const updatePlaylist = async (newName) => {
+    const updatePlaylist = async (playlistData) => {
         try {
-            await updatePlaylistService(id, { name: newName });
+            await updatePlaylistService(id, playlistData);
             await fetchPlaylist();
             showToast('Playlist actualizada.');
             return true;
@@ -47,7 +47,7 @@ export const usePlaylist = (id) => {
             return false;
         }
     };
-
+    
     const deletePlaylist = async () => {
         try {
             await deletePlaylistService(id);

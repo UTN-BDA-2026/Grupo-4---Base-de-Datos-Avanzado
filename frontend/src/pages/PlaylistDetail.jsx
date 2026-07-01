@@ -20,14 +20,19 @@ const PlaylistDetail = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editName, setEditName] = useState('');
+    const [editIsPublic, setEditIsPublic] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [songToDelete, setSongToDelete] = useState(null);
-    // Solo visual: indica si el último play disparado fue aleatorio.
     const [shuffleMode, setShuffleMode] = useState(false);
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        const ok = await updatePlaylist(editName);
+
+        const ok = await updatePlaylist({
+            name: editName,
+            is_public: editIsPublic
+        });
+
         if (ok) setIsEditing(false);
     };
 
@@ -60,7 +65,6 @@ const PlaylistDetail = () => {
     const playlistCover = playlist.image || playlist.cover_url;
     const firstPlaylistSong = playlist.songs?.[0]?.song;
 
-    // ¿Lo que suena ahora pertenece a esta playlist?
     const isPlaylistPlaying = isPlaying && !!currentTrack &&
         playlist.songs?.some((ps) => ps.song.deezer_id === currentTrack.deezer_id);
 
@@ -121,18 +125,66 @@ const PlaylistDetail = () => {
                                     </span>
 
                                     {isEditing ? (
-                                        <form onSubmit={handleEditSubmit} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                            <input
-                                                type="text"
-                                                value={editName}
-                                                onChange={(e) => setEditName(e.target.value)}
-                                                className="custom-input"
-                                                autoFocus
-                                                required
-                                                style={{ fontSize: '2rem', padding: '8px 16px', borderRadius: '8px' }}
-                                            />
-                                            <button type="submit" className="submit-btn" style={{ margin: 0, width: 'auto', padding: '8px 20px' }}>✔</button>
-                                            <button type="button" onClick={() => setIsEditing(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
+                                       <form
+                                            onSubmit={handleEditSubmit}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'flex-end',
+                                                gap: '15px',
+                                                width: '100%'
+                                            }}
+                                        >
+                                            <div style={{ flex: 1 }}>
+                                                <label style={{ color: 'white', marginBottom: '8px', display: 'block' }}>
+                                                    Nombre
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    value={editName}
+                                                    onChange={(e) => setEditName(e.target.value)}
+                                                    className="custom-input"
+                                                    autoFocus
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div style={{ width: '180px' }}>
+                                                <label style={{ color: 'white', marginBottom: '8px', display: 'block' }}>
+                                                    Visibilidad
+                                                </label>
+
+                                                <select
+                                                    className="custom-input"
+                                                    value={editIsPublic ? 'public' : 'private'}
+                                                    onChange={(e) => setEditIsPublic(e.target.value === 'public')}
+                                                >
+                                                    <option value="private">Privada</option>
+                                                    <option value="public">Pública</option>
+                                                </select>
+                                            </div>
+
+                                            <button
+                                                type="submit"
+                                                className="submit-btn"
+                                                style={{ width: 'auto', margin: 0 }}
+                                            >
+                                                ✔
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEditing(false)}
+                                                style={{
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    color: '#9ca3af',
+                                                    fontSize: '1.4rem',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                ✕
+                                            </button>
                                         </form>
                                     ) : (
                                         <h1 className="playlist-detail-title">
@@ -163,7 +215,7 @@ const PlaylistDetail = () => {
                             >
                                 {!isLikedSongs && (
                                     <>
-                                        <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); }}>
+                                        <button className="detail-pill-btn" type="button" onClick={() => { setIsEditing(true); setEditName(playlist.name); setEditIsPublic(playlist.is_public); }}>
                                             Editar
                                         </button>
                                         <button className="detail-pill-btn danger" type="button" onClick={() => setShowDeleteModal(true)}>
@@ -173,7 +225,6 @@ const PlaylistDetail = () => {
                                 )}
                             </DetailPlaybackActions>
 
-                            {/* TABLA DE CANCIONES */}
                             <table style={{ width: '100%', borderCollapse: 'collapse', color: '#9ca3af', textAlign: 'left', fontSize: '0.95rem' }}>
                                 <thead>
                                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
